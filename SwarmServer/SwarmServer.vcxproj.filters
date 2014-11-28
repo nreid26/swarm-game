@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Project">
+      <UniqueIdentifier>{5ccaa234-7bc0-45b3-8d61-402ae830c52c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Util">
+      <UniqueIdentifier>{e5c69fa9-0ba2-4f8e-9155-668868ce3600}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Util\Concurrency">
+      <UniqueIdentifier>{03360641-317f-45f7-877d-43438ce473de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Project\Messengers">
+      <UniqueIdentifier>{ac3d6489-e86b-4286-83d9-31c90b98d67d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Util\Socket">
+      <UniqueIdentifier>{0132249a-f32c-4a09-9221-4d75273cbc2d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bin\$.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\Semaphore.h">
+      <Filter>Header Files\Util\Concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\GameMessenger.h">
+      <Filter>Header Files\Project\Messengers</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\Messenger.h">
+      <Filter>Header Files\Project\Messengers</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\LobbyMessenger.h">
+      <Filter>Header Files\Project\Messengers</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\ConnectionDelegate.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\EventTimer.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\Game.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\Lobby.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\Player.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\Thread.h">
+      <Filter>Header Files\Util\Concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\Exception.h">
+      <Filter>Header Files\Util</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\Socket.h">
+      <Filter>Header Files\Util\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\SocketServer.h">
+      <Filter>Header Files\Util\Socket</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\messages.txt" />
+  </ItemGroup>
+</Project>
