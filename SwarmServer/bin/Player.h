@@ -29,12 +29,14 @@ class Player : public Thread<void> {
 	private: $<Socket> connection;
 
 	//Constructor
-	public: Player($<String> name, $<Socket> connection) : name(name), connection(connection), id(nextId()) { }
+	public: Player($<Socket> connection) : connection(connection), id(nextId()) { }
 
 	public: virtual ~Player() {}
 
 	//Methods
 	public: $<String> getName() { return name; }
+
+	public: void setName($<String> name) { this->name = name; }
 
 	public: int getId() { return id; }
 
@@ -42,8 +44,9 @@ class Player : public Thread<void> {
 
 	public: void setMessenger($<Messenger> messenger) { this->messenger = messenger; }
 
-	protected: void main() { messenger->tellWorld(connection->read()); } //For all time, wait for a message and pass it to the messenger
+	protected: virtual $<void> run() { messenger->tellWorld(connection->read()); } //For all time, wait for a message and pass it to the messenger
 };
 
+typedef $<Player> $Player;
 
 #endif

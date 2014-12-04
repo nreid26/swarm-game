@@ -74,7 +74,16 @@
     <ClInclude Include="bin\Socket.h">
       <Filter>Header Files\Util\Socket</Filter>
     </ClInclude>
+    <ClInclude Include="bin\NamingMessenger.h">
+      <Filter>Header Files\Project\Messengers</Filter>
+    </ClInclude>
     <ClInclude Include="bin\SocketServer.h">
+      <Filter>Header Files\Util\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\WebSocket.h">
+      <Filter>Header Files\Util\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="bin\WebSocketServer.h">
       <Filter>Header Files\Util\Socket</Filter>
     </ClInclude>
   </ItemGroup>

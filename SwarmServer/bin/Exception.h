@@ -1,8 +1,8 @@
 #ifndef _EXCEPTION
 #define _EXCEPTION
 
-#include <String>
-#include "../$.h"
+#include <string>
+#include "$.h"
 
 using namespace std;
 
@@ -10,16 +10,15 @@ class Exception {
 	//Data
 	private:
 	$<String> message;
-	$<void> object;
 
 	//Constructor
-	public: Exception($<String> message = NULL, $<void> object = NULL) : message(message), object(object) {}
+	public: Exception($<String> message = NULL) : message(message) {}
 
 	public: virtual ~Exception() {}
 	//Members
 	public: $<String> getMessage() { return message; }
-
-	public: $<void> getObject() { return object; }
 };
+
+typedef $<Exception> $Exception;
 
 #endif

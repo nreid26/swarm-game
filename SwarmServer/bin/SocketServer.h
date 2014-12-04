@@ -1,8 +1,6 @@
 #ifndef _SOCKET_SERVER
 #define _SOCKET_SERVER
 
-#include <String>
-#include <errno.h>
 #include "Socket.h"
 
 #include "$.h"
@@ -10,14 +8,14 @@
 
 using namespace std;
 
-class ServerSocket {
+class SocketServer {
 	//Data
 	private: int socketFile;
 	private: sockaddr_in socketDescriptor;
 	private: bool closed;
 
 	//Constructor
-	public: ServerSocket(int port) {
+	public: SocketServer(int port) {
 		// The first call has to be to socket(). This creates a UNIX socket.
 		socketFile = socket(AF_INET, SOCK_STREAM, 0);
 		if(socketFile < 0)
@@ -38,10 +36,12 @@ class ServerSocket {
 		listen(socketFile, 5);
 	}
 
-	public: virtual ~ServerSocket() {}
+	public: virtual ~SocketServer() {
+		close();
+	}
 
 	//Methods
-	public: $<Socket> accept() { //Blocks on the bound port and produces new Sockets
+	public: virtual $Socket accept() { //Blocks on the bound port and produces new Sockets
 		if(closed) { throw new Exception("Accept Cannot be Called on a Closed Socket"); }
 
 		int connectionFile = ::accept(socketFile, NULL, 0);

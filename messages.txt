@@ -1,11 +1,15 @@
 //Ensure that no two messages in the same transmission category and state share an identifying tag
 
-[0: Global]
-Closed Socket
+[0: Connection]
+Send
+	{name:true}
+
+Receive
+	{name:<<string (player name)>>}
 
 [1: Lobby]
 Send
-	Update a player in the lobby (describe player "leaving" revokes challenges)
+	Update a player in the lobby (describe player "leaving" revokes challenges to and from that player)
 	{player:{id:<<int (player id)>>, name:<<string (name of player)>>, state:<<string ("joining", "challenged", "leaving")>>}}
 
 	Forward game request to from one player to another 
@@ -21,11 +25,11 @@ Recieve
 
 [2: Creation]
 Send
+	Number of planets
+	{plantCount:<<int>>}
+
 	Information on a planet/body
 	{planets:{capacity:<<int>>, growth:<<int (new troops per 100ms)>>, team:<<int (player id)>>, troops:<<int (number of troops on  planet)>>, position:{x:<<int>>, y:<<int>>,z:<<int>>}}}
-	
-	Size of map (also indicates no more planets)
-	{size:{x:<<int (map width)>>, y:<<int (map height)>>}} 
 
 	Ready (this is a notification thats sent to all clients at the same time)
 	{start:true}

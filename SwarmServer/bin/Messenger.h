@@ -15,8 +15,10 @@ using namespace rapidjson;
 using namespace std;
 
 class Messenger {
+	//Statics
+	private: int extract($<Document> doc, $<String> key) { return doc->operator[][key->c_str()]; }
 	//Data
-	private: $<Player> player;
+	protected: $<Player> player;
 
 	//Constructor
 	public: Messenger($<Player> player) : player(player) {}
@@ -25,19 +27,20 @@ class Messenger {
 	public: void tellWorld($<String> message) {
 		$<Document> doc = new Document();
 		doc->Parse<0>(message->c_str);
-		tellWorldInternal(doc);
+
+		if(!doc->HasParseError() && doc->IsObject()) { tellWorldInternal(doc); } //If no errors
 	}
 
 	public: virtual ~Messenger() {}
 
 	protected: virtual void tellWorldInternal($<Document> doc) {}
 
-	public: void tellPlayer($<String> message) { player->tell(message); }
+	public: void tellPlayer($String message) { player->tell(message); }
 
 	public: int playerId() { return player->getId(); }
 
-	public: $<String> playerName() { return player->getName(); }
+	public: $String playerName() { return player->getName(); }
 };
 
-
+typedef $<Messenger> $Messenger;
 #endif

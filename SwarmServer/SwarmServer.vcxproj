@@ -73,11 +73,14 @@
     <ClInclude Include="bin\Lobby.h" />
     <ClInclude Include="bin\LobbyMessenger.h" />
     <ClInclude Include="bin\Messenger.h" />
+    <ClInclude Include="bin\NamingMessenger.h" />
     <ClInclude Include="bin\Player.h" />
     <ClInclude Include="bin\Semaphore.h" />
     <ClInclude Include="bin\Socket.h" />
     <ClInclude Include="bin\SocketServer.h" />
     <ClInclude Include="bin\Thread.h" />
+    <ClInclude Include="bin\WebSocket.h" />
+    <ClInclude Include="bin\WebSocketServer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />

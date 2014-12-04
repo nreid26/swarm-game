@@ -8,6 +8,7 @@
 using namespace std;
 
 typedef string String;
+typedef $<String> $String;
 
 template<class T> class $ {
 	//Data
