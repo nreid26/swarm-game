@@ -35,56 +35,56 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="bin\$.h">
+    <ClInclude Include="src\ConnectionDelegate.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="src\EventTimer.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Game.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Lobby.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player.h">
+      <Filter>Header Files\Project</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameMessenger.h">
+      <Filter>Header Files\Project\Messengers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\LobbyMessenger.h">
+      <Filter>Header Files\Project\Messengers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Messenger.h">
+      <Filter>Header Files\Project\Messengers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\NamingMessenger.h">
+      <Filter>Header Files\Project\Messengers</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Semaphore.h">
+      <Filter>Header Files\Util\Concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Thread.h">
+      <Filter>Header Files\Util\Concurrency</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Socket.h">
+      <Filter>Header Files\Util\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SocketServer.h">
+      <Filter>Header Files\Util\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WebSocket.h">
+      <Filter>Header Files\Util\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="src\WebSocketServer.h">
+      <Filter>Header Files\Util\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="src\$.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="bin\Semaphore.h">
-      <Filter>Header Files\Util\Concurrency</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\GameMessenger.h">
-      <Filter>Header Files\Project\Messengers</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\Messenger.h">
-      <Filter>Header Files\Project\Messengers</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\LobbyMessenger.h">
-      <Filter>Header Files\Project\Messengers</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\ConnectionDelegate.h">
-      <Filter>Header Files\Project</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\EventTimer.h">
-      <Filter>Header Files\Project</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\Game.h">
-      <Filter>Header Files\Project</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\Lobby.h">
-      <Filter>Header Files\Project</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\Player.h">
-      <Filter>Header Files\Project</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\Thread.h">
-      <Filter>Header Files\Util\Concurrency</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\Exception.h">
+    <ClInclude Include="src\Exception.h">
       <Filter>Header Files\Util</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\Socket.h">
-      <Filter>Header Files\Util\Socket</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\NamingMessenger.h">
-      <Filter>Header Files\Project\Messengers</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\SocketServer.h">
-      <Filter>Header Files\Util\Socket</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\WebSocket.h">
-      <Filter>Header Files\Util\Socket</Filter>
-    </ClInclude>
-    <ClInclude Include="bin\WebSocketServer.h">
-      <Filter>Header Files\Util\Socket</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

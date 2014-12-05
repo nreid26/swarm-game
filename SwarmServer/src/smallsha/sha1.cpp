@@ -182,4 +182,5 @@ namespace sha1
         }
         hexstring[40] = 0;
     }
+
 } // namespace sha1

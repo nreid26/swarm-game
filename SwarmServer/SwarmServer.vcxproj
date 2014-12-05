@@ -64,23 +64,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="bin\$.h" />
-    <ClInclude Include="bin\ConnectionDelegate.h" />
-    <ClInclude Include="bin\EventTimer.h" />
-    <ClInclude Include="bin\Exception.h" />
-    <ClInclude Include="bin\Game.h" />
-    <ClInclude Include="bin\GameMessenger.h" />
-    <ClInclude Include="bin\Lobby.h" />
-    <ClInclude Include="bin\LobbyMessenger.h" />
-    <ClInclude Include="bin\Messenger.h" />
-    <ClInclude Include="bin\NamingMessenger.h" />
-    <ClInclude Include="bin\Player.h" />
-    <ClInclude Include="bin\Semaphore.h" />
-    <ClInclude Include="bin\Socket.h" />
-    <ClInclude Include="bin\SocketServer.h" />
-    <ClInclude Include="bin\Thread.h" />
-    <ClInclude Include="bin\WebSocket.h" />
-    <ClInclude Include="bin\WebSocketServer.h" />
+    <ClInclude Include="src\$.h" />
+    <ClInclude Include="src\ConnectionDelegate.h" />
+    <ClInclude Include="src\EventTimer.h" />
+    <ClInclude Include="src\Exception.h" />
+    <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\GameMessenger.h" />
+    <ClInclude Include="src\Lobby.h" />
+    <ClInclude Include="src\LobbyMessenger.h" />
+    <ClInclude Include="src\Messenger.h" />
+    <ClInclude Include="src\NamingMessenger.h" />
+    <ClInclude Include="src\Player.h" />
+    <ClInclude Include="src\Semaphore.h" />
+    <ClInclude Include="src\Socket.h" />
+    <ClInclude Include="src\SocketServer.h" />
+    <ClInclude Include="src\Thread.h" />
+    <ClInclude Include="src\WebSocket.h" />
+    <ClInclude Include="src\WebSocketServer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />

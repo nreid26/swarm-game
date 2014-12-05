@@ -9,7 +9,7 @@ int main() {
 	$WebSocketServer server = new WebSocketServer(6113);
 	$WebSocket socket = server->accept();
 
-	while(true) {
-		cout << socket->read()->c_str() << endl;
-	}
+	cout << "Connection Says:" << socket->read()->c_str() << endl;
+	
+	socket->close();
 }
