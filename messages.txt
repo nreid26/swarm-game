@@ -25,11 +25,11 @@ Recieve
 
 [2: Creation]
 Send
-	Number of planets
-	{plantCount:<<int>>}
-
 	Information on a planet/body
 	{planets:{capacity:<<int>>, growth:<<int (new troops per 100ms)>>, team:<<int (player id)>>, troops:<<int (number of troops on  planet)>>, position:{x:<<int>>, y:<<int>>,z:<<int>>}}}
+
+	Number of planets
+	{radius:<<int>>}
 
 	Ready (this is a notification thats sent to all clients at the same time)
 	{start:true}
