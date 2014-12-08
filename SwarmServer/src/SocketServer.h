@@ -45,7 +45,7 @@ class SocketServer {
 	}
 
 	//Methods
-	public: virtual $Socket accept() { //Blocks on the bound port and produces new Sockets
+	public: $Socket accept() { //Blocks on the bound port and produces new Sockets
 		if(closed) { throw new Exception("Accept Cannot be Called on a Closed Socket"); }
 
 		int connectionFile = ::accept(socketFile, NULL, 0);

@@ -63,7 +63,7 @@ class Socket {
 		}
 	}
 
-	public: virtual int write($String message) {
+	public: int write($String message) {
 		if(closed) { throw new Exception("Attempt to write to an unopened socket"); }
 
 		//1 writer
@@ -79,7 +79,7 @@ class Socket {
 		}
 	}
 
-	public: virtual $String read(int len = 0) {
+	public: $String read(int len = 0) {
 		if(closed) { throw new Exception("Cannot Read an Unopened Socket"); }
 
 		if(len <= 0 || len > bufferSize) { len = bufferSize; } //Unspecified -> max

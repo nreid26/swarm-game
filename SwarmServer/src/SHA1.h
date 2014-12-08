@@ -153,7 +153,7 @@ class SHA1 {
 		innerHash(result, w);
 
 		// Store hash in result pointer, and make sure we get in in the correct order on both endian models.
-		for(int hashByte = 20; --hashByte >= 0;)
+		for(int hashByte = 0; hashByte < 20; hashByte++)
 		{
 			hash->push_back(
 				(result[hashByte >> 2] >> (((3 - hashByte) & 0x3) << 3)) & 0xff
@@ -215,8 +215,8 @@ class SHA1 {
 			char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
 			char_array_4[3] = char_array_3[2] & 0x3f;
 
-			for(j = 0; (j < i + 1); j++) { ret->push_back(base64_chars[char_array_4[j]]); }
-			while((i++ < 3)) { ret->push_back('='); }
+			for(j = 0; j < i + 1; j++) { ret->push_back(base64_chars[char_array_4[j]]); }
+			while(i++ < 3) { ret->push_back('='); }
 		}
 
 		return ret;
