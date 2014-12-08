@@ -7,10 +7,9 @@
 
 #include <iostream>
 
-#include "smallsha/sha1.h"
+#include "SHA1.h"
 
 using namespace std;
-using namespace sha1;
 
 class WebSocketServer : public SocketServer {
 	//Data
@@ -28,8 +27,9 @@ class WebSocketServer : public SocketServer {
 		if(connectionFile < 0) { throw new Exception("Unexpected Error in the Server"); }
 
 		$WebSocket result = new WebSocket(connectionFile);
+
 		prepare(result);
-		cout << "New Connection";
+		cout << "New Connection" << endl;
 		return result;
 	}
 
@@ -41,6 +41,8 @@ class WebSocketServer : public SocketServer {
 		appendHash(req, res); //Put hash in response
 		res->append("\r\n\r\n"); //Terminate response
 
+		cout << res->c_str() << endl;
+
 		connection->write(res); //Send response
 	}
 
@@ -48,8 +50,6 @@ class WebSocketServer : public SocketServer {
 		const static char key[] = "Sec-WebSocket-Key: ";
 		const static char keyEnd[] = "\r\n";
 		const static char magicString[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
-
-		unsigned char hash[20]; //Magic size
 
 		//Extract key locales from socket string
 		int valStart = req->find(key) + sizeof(key) - 1;
@@ -59,49 +59,12 @@ class WebSocketServer : public SocketServer {
 		$String s = new String(req->substr(valStart, valEnd - valStart));
 		s->append(magicString);
 
-		calc(s->c_str(), s->length(), hash);
-		res->append(base64Encode(reinterpret_cast<const unsigned char*>(hash), 20)->c_str()); //Magic don't touch
-	}
-
-	//Not mine dont' touch
-	$String base64Encode(unsigned char const* bytes_to_encode, unsigned int in_len) {
-		static const char base64_chars[] = { "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" };
-
-		String ret = "";
-		int i = 0;
-		int j = 0;
-		unsigned char char_array_3[3];
-		unsigned char char_array_4[4];
-
-		while(in_len--) {
-			char_array_3[i++] = *(bytes_to_encode++);
-			if(i == 3) {
-				char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-				char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-				char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-				char_array_4[3] = char_array_3[2] & 0x3f;
-
-				for(i = 0; i < 4; i++) { ret += base64_chars[char_array_4[i]]; }
-
-				i = 0;
-			}
-		}
-
-		if(i) {
-			for(j = i; j < 3; j++) { char_array_3[j] = '\0'; }
-
-			char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
-			char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
-			char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
-			char_array_4[3] = char_array_3[2] & 0x3f;
-
-			for(j = 0; (j < i + 1); j++) { ret += base64_chars[char_array_4[j]]; }
-			while((i++ < 3)) { ret += '='; }
-		}
-
-		return new String(ret);
-
-	}
+		res->append(
+			SHA1::toBase64String(
+				SHA1::calc(s)
+			)->c_str()
+		);
+	}	
 };
 
 typedef $<WebSocketServer> $WebSocketServer;

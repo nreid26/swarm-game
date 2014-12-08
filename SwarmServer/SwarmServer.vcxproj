@@ -76,6 +76,7 @@
     <ClInclude Include="src\NamingMessenger.h" />
     <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\Semaphore.h" />
+    <ClInclude Include="src\SHA1.h" />
     <ClInclude Include="src\Socket.h" />
     <ClInclude Include="src\SocketServer.h" />
     <ClInclude Include="src\Thread.h" />
@@ -83,10 +84,13 @@
     <ClInclude Include="src\WebSocketServer.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp" />
+    <ClCompile Include="SwarmServer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\messages.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Makefile" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

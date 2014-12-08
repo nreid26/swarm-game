@@ -4,6 +4,7 @@
 #define NULL 0
 
 #include <string>
+#include <iostream>
 
 using namespace std;
 
@@ -17,15 +18,13 @@ template<class T> class $ {
 	//Constructor
 	public: $() { init(NULL); } //Default constructor
 
-	public: $(T* ptr) { init(ptr); } //Allows for implicit conversion from pointer to Reference in function calls
+	public: $(T* ptr) {
+		init(ptr);
+	} //Allows for implicit conversion from pointer to Reference in function calls
 
-	public: $(T* ptr, int* users) {
-		obj = ptr;
-		this->users = users;
-		(*users)++;
-	}
-
-	public: $(const $& origin) { duplicate(origin); } //Copy constructor
+	public: $(const $& origin) {
+		duplicate(origin);
+	} //Copy constructor
 
 	public: ~$() { release(); }
 
@@ -38,8 +37,15 @@ template<class T> class $ {
 		return *this;
 	}
 
+	public: template<typename> friend class $;
+
 	public: template <class U> operator $<U>() {
-		return $<U>((U*)(this->obj), users);
+		cout << "casting" << endl;
+		$<U> temp = $<U>((U*)(this->obj));
+
+		delete temp.users;
+		temp.users = users;
+		(*users)++;
 	}
 
 

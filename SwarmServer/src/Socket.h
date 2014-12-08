@@ -79,13 +79,15 @@ class Socket {
 		}
 	}
 
-	public: virtual $String read() {
+	public: virtual $String read(int len = 0) {
 		if(closed) { throw new Exception("Cannot Read an Unopened Socket"); }
+
+		if(len <= 0 || len > bufferSize) { len = bufferSize; } //Unspecified -> max
 
 		//1 reader
 		readGuard->wait(); 
 		try {
-			size_t received = recv(socketFile, buffer, bufferSize, 0); //Block to read, get amount
+			size_t received = recv(socketFile, buffer, len, 0); //Block to read, get amount
 			$String result = new String(buffer, received);
 			readGuard->signal(); //Release 
 			return result; //Return the string
