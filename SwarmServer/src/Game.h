@@ -138,6 +138,8 @@ class Game : public Thread<void> {
 
 			p.id = planets.size();
 			planets.push_back(p); //Copy the planet into the vector
+			messenger1->relayPlanet(p.id, p.x,p.y,p.z, p.capacity, p.growth, p.player, p.troops);
+			messenger2->relayPlanet(p.id, p.x,p.y,p.z, p.capacity, p.growth, p.player, p.troops);
 		}
 	}
 
@@ -205,8 +207,8 @@ class Game : public Thread<void> {
 
 			testWinner(); //Test for and declare winner
 			if(winner >= 0) {
-				messenger1->relayWinner(hasWon);
-				messenger2->relayWinner(hasWon);
+				messenger1->relayWinner(winner);
+				messenger2->relayWinner(winner);
 
 				ThreadDisposer::getInstance()->add(myself);
 				cancel();
