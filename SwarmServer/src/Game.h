@@ -33,7 +33,7 @@ class Game : public Thread<void> {
 		//Data
 		public: int player, troops, wait, dest;
 		public: $Game parent;
-		public: $<Deployment> myself;
+		private: $<Deployment> myself;
 
 		//Constructor
 		public: Deployment(int p, int t, int w, int d, $Game g) : player(p), troops(t), wait(w), dest(d), parent(g) { }
@@ -41,10 +41,14 @@ class Game : public Thread<void> {
 		//Methods
 		protected: $<void> run() {
 			usleep(delay * 1000); //Wait for delay ms
+
 			parent->arriveDeployment(troops, dest, player);
+			ThreadDisposer::getInstance()->add(myself);
+
 			parent = NULL;
+			myself = NULL;
+
 			cancel(); //Only run once
-			ThreadDisposer::getInstance()->add
 			return NULL;
 		}
 
@@ -56,7 +60,7 @@ class Game : public Thread<void> {
 
 	//Statics
 	private: const static double PI;
-	private: const static double TROOP_SPEED = 2 * radius / 25;
+	private: const static double TROOP_SPEED;
 	private: const static int radius = 100;
 	private: const static int minSeparation = 7;
 
@@ -178,6 +182,7 @@ class Game : public Thread<void> {
 			//Create a deployment thread
 			depCount++;
 			$<Deployment> dep = new Deployment(playerId, troops, timeMatrix[sourceId][destId], destId, myself);
+			dep->start(dep);
 		guard.signal();
 
 		//Tell the players about this deployment
@@ -200,20 +205,19 @@ class Game : public Thread<void> {
 
 			testWinner(); //Test for and declare winner
 			if(winner >= 0) {
-				cancel(); //End thread
-				join();
-
-				meself = NULL; //Eliminate this soon to be lost reference
-
 				messenger1->relayWinner(hasWon);
 				messenger2->relayWinner(hasWon);
+
+				ThreadDisposer::getInstance()->add(myself);
+				cancel();
+				myself = NULL; //Eliminate this soon to be lost reference
 			}
 			else { //Update the state of that planet on the client side
 				messenger1->relayUpdate(dest, planets[dest].player, planets[dest].troops);
 				messenger2->relayUpdate(dest, planets[dest].player, planets[dest].troops);
-			}
 
-		guard.signal();
+				guard.signal();
+			}
 	}
 
 	private: void testWinner() { //Is there a winner
@@ -231,7 +235,7 @@ class Game : public Thread<void> {
 };
 
 const double Game::PI = 3.141592654;
-const double Game::TROOP_SPEED = 2 * ;  //units / seconds
+const double Game::TROOP_SPEED = 2 * radius / 25;  //units / seconds
 
 typedef $<Game> $Game;
 

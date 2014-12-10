@@ -27,7 +27,11 @@ class ThreadDisposer : private Thread<void> {
 	//Methods
 	protected: virtual $<void> run() {
 		guard.wait();
-			toKill.clear();
+			for(int i = toKill.size() - 1; i >= 0; i--) { //Iterate over to kill and erase any threads that are not running
+				if(!toKill[i]->isRunning()) {
+					toKill.erase(toKill.begin() + 1);
+				}
+			}
 		guard.signal();
 
 		usleep(1000 * 1000);

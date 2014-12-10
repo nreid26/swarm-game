@@ -42,6 +42,8 @@ class Messenger {
 	public: int playerId() { return player->getId(); }
 
 	public: $String playerName() { return player->getName(); }
+
+	public: virtual void playerDied() = 0;
 };
 
 typedef $<Messenger> $Messenger;

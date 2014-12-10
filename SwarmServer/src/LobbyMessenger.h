@@ -63,6 +63,10 @@ class LobbyMessenger : public Messenger {
 		player->setMessenger(gm);
 		return gm;
 	}
+
+	public: virtual void playerDied() {
+		lobby->unregisterMessenger(player->getId());
+	}
 };
 
 typedef $<LobbyMessenger> $LobbyMessenger;
