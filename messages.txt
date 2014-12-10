@@ -1,9 +1,6 @@
 //Ensure that no two messages in the same transmission category and state share an identifying tag
 
 [0: Connection]
-Send
-	{name:true}
-
 Receive
 	{name:<<string (player name)>>}
 
@@ -17,7 +14,7 @@ Send
 
 Recieve
 	Start game with this player.
-	{challenge:player:<<int (id of player that the challenge is to)>>}
+	{challenge:<<int (id of player that the challenge is to)>>}
 
 	Accept challenge
 	{accept:<<int (player id)>>}
@@ -26,10 +23,10 @@ Recieve
 [2: Creation]
 Send
 	Information on a planet/body
-	{planets:{capacity:<<int>>, growth:<<int (new troops per 100ms)>>, team:<<int (player id)>>, troops:<<int (number of troops on  planet)>>, position:{x:<<int>>, y:<<int>>,z:<<int>>}}}
+	{planet:{capacity:<<int>>, growth:<<int (new troops per 100ms)>>, team:<<int (player id)>>, troops:<<int (number of troops on  planet)>>, position:{x:<<int>>, y:<<int>>,z:<<int>>}}}
 
 	Number of planets
-	{radius:<<int>>}
+	{radius:<<int>>, mimimumSeparation:<<int>>}
 
 	Ready (this is a notification thats sent to all clients at the same time)
 	{start:true}

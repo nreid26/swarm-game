@@ -14,6 +14,9 @@ class GameMessenger {
 	public: GameMessenger($Player player, $Game game) : player(player), game(game) {}
 
 	//Methods
+	protected: virtual void tellWorldInternal($<Document> doc) {
+
+	}
 };
 
 typedef $<GameMessenger> $GameMessenger;

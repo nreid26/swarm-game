@@ -12,7 +12,7 @@
 #include <strings.h>
 
 #include "$.h"
-#include "Exception.h"
+#include <string>
 #include "Semaphore.h"
 
 using namespace std;
@@ -35,14 +35,14 @@ class Socket {
 	public: Socket($String ipAddress, unsigned int port) : closed(false), readGuard(new Semaphore(1)), writeGuard(new Semaphore(1)) {
 		//Open socket file
 		if(socketFile = socket(AF_INET, SOCK_STREAM, 0) < 0) {
-			throw new Exception("Unable to Initialize");
+			throw Exception("Unable to Initialize");
 		}
 
 		bzero((char*)&socketDescriptor, sizeof(sockaddr_in)); //0 socket descriptor
 
 		//Bind IP
 		if(!inet_aton(ipAddress->c_str(), &socketDescriptor.sin_addr)) {
-			throw new Exception("Invalid IP Address");
+			throw Exception("Invalid IP Address");
 		}
 
 		socketDescriptor.sin_family = AF_INET;
@@ -59,12 +59,12 @@ class Socket {
 	public: int open() {
 		if(connect(socketFile, (sockaddr*)&socketDescriptor, sizeof(socketDescriptor)) != 0)
 		{
-			throw new Exception("Unable to Open Connection");
+			throw Exception("Unable to Open Connection");
 		}
 	}
 
 	public: int write($String message) {
-		if(closed) { throw new Exception("Attempt to write to an unopened socket"); }
+		if(closed) { throw Exception("Attempt to write to an unopened socket"); }
 
 		//1 writer
 		writeGuard->wait();
@@ -75,12 +75,12 @@ class Socket {
 		}
 		catch(...) { //If write fails, signal sem and throw
 			writeGuard->signal();
-			throw new Exception("Socket Shutdown During Write");
+			throw Exception("Socket Shutdown During Write");
 		}
 	}
 
 	public: $String read(int len = 0) {
-		if(closed) { throw new Exception("Cannot Read an Unopened Socket"); }
+		if(closed) { throw Exception("Cannot Read an Unopened Socket"); }
 
 		if(len <= 0 || len > bufferSize) { len = bufferSize; } //Unspecified -> max
 
@@ -94,7 +94,7 @@ class Socket {
 		}
 		catch(...) { //If read fails, signal sem and throw
 			readGuard->signal();  
-			throw new Exception("Socket Shutdown During Read"); 
+			throw Exception("Socket Shutdown During Read"); 
 		}
 	}
 

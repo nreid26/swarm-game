@@ -7,8 +7,10 @@
 #include <netinet/in.h>
 #include <netinet/ip.h> 
 
-#include "$.h"
 #include "Exception.h"
+
+#include "$.h"
+#include <string>
 
 using namespace std;
 
@@ -23,7 +25,7 @@ class SocketServer {
 		// The first call has to be to socket(). This creates a UNIX socket.
 		socketFile = socket(AF_INET, SOCK_STREAM, 0);
 		if(socketFile < 0)
-			throw new Exception("Unable to open the socket server");
+			throw Exception("Unable to open the socket server");
 
 		// The second call is to bind().  This identifies the socket file
 		// descriptor with the description of the kind of socket we want to have.
@@ -33,7 +35,7 @@ class SocketServer {
 		socketDescriptor.sin_addr.s_addr = INADDR_ANY;
 
 		if(bind(socketFile, (sockaddr*)&socketDescriptor, sizeof(socketDescriptor)) < 0) {
-			throw new Exception("Unable to bind socket to requested port");
+			throw Exception("Unable to bind socket to requested port");
 		}
 
 		// Set up a maximum number of pending connections to accept
@@ -46,10 +48,10 @@ class SocketServer {
 
 	//Methods
 	public: $Socket accept() { //Blocks on the bound port and produces new Sockets
-		if(closed) { throw new Exception("Accept Cannot be Called on a Closed Socket"); }
+		if(closed) { throw Exception("Accept Cannot be Called on a Closed Socket"); }
 
 		int connectionFile = ::accept(socketFile, NULL, 0);
-		if(connectionFile < 0) { throw new Exception("Unexpected Error in the Server"); }
+		if(connectionFile < 0) { throw Exception("Unexpected Error in the Server"); }
 
 		return new Socket(connectionFile);
 	}

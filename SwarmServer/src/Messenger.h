@@ -1,13 +1,9 @@
 #ifndef _MESSENGER
 #define _MESSENGER
 
-#include <string>
-#include <vector>
-#include <cstdio>
-#include "rapidjson/document.h"		// rapidjson's DOM-style API
-#include "rapidjson/prettywriter.h"	// for Stringify JSON
-#include "rapidjson/filestream.h"	// wrapper of C stream for prettywriter as output
+#include "rapidjson/include.h"
 
+#include <sstream>
 #include "$.h"
 #include "Player.h"
 
@@ -17,6 +13,7 @@ using namespace std;
 class Messenger {
 	//Statics
 	private: int extract($<Document> doc, $String key) { return doc->operator[][key->c_str()]; }
+
 	//Data
 	protected: $Player player;
 
@@ -28,12 +25,17 @@ class Messenger {
 		$<Document> doc = new Document();
 		doc->Parse<0>(message->c_str);
 
-		if(!doc->HasParseError() && doc->IsObject()) { tellWorldInternal(doc); } //If no errors
+		if(!doc->HasParseError() && doc->IsObject()) {
+			try {
+				tellWorldInternal(doc);
+			}
+			catch(...) {}
+		}
 	}
 
 	public: virtual ~Messenger() {}
 
-	protected: virtual void tellWorldInternal($<Document> doc) {}
+	protected: virtual void tellWorldInternal($<Document> doc) = 0;
 
 	public: void tellPlayer($String message) { player->tell(message); }
 

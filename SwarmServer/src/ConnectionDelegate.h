@@ -5,7 +5,7 @@
 
 #include "$.h"
 #include "Thread.h"
-#include "Exception.h"
+#include <string>
 #include "Player.h"
 #include "WebSocketServer.h"
 #include "NamingMessenger.h"
@@ -17,20 +17,18 @@ class ConnectionDelegate : public Thread<void> {
 	private: $WebSocketServer server;
 
 	//Constructor
-	public: ConnectionDelegate(int port) : server(new SocketServer(port)) { }
+	public: ConnectionDelegate(int port) : server(new WebSocketServer(port)) { }
 
 	protected: virtual void main() {
 		try {
-			$Socket connection = server->accept();
-
-			prepare(connection); //Respond to the http request
+			$WebSocket connection = server->accept();
 
 			$Player player = new Player(connection);
 			player->start(); //Start player read thread
 			player->setMessenger(new NamingMessenger(player));
 		}
-		catch($Exception e) {
-			cerr << e->getMessage()->c_str() << endl;
+		catch(Exception e) {
+			cerr << e.getMessage()->c_str() << endl;
 		}
 	}	
 };

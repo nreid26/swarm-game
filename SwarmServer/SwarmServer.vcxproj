@@ -66,7 +66,6 @@
   <ItemGroup>
     <ClInclude Include="src\$.h" />
     <ClInclude Include="src\ConnectionDelegate.h" />
-    <ClInclude Include="src\EventTimer.h" />
     <ClInclude Include="src\Exception.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\GameMessenger.h" />
@@ -80,6 +79,7 @@
     <ClInclude Include="src\Socket.h" />
     <ClInclude Include="src\SocketServer.h" />
     <ClInclude Include="src\Thread.h" />
+    <ClInclude Include="src\ThreadDisposer.h" />
     <ClInclude Include="src\WebSocket.h" />
     <ClInclude Include="src\WebSocketServer.h" />
   </ItemGroup>

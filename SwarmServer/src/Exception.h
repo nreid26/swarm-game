@@ -19,6 +19,6 @@ class Exception {
 	public: $String getMessage() { return message; }
 };
 
-typedef $<Exception> $Exception;
+typedef $<Exception> $ExceptionS;
 
 #endif

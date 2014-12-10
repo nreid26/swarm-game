@@ -7,6 +7,7 @@
 #include "GameMessenger.h"
 
 using namespace std;
+using namespace rapidjson;
 
 class LobbyMessenger : public Messenger {
 	//Data
@@ -20,21 +21,47 @@ class LobbyMessenger : public Messenger {
 	public: void describeOtherPlayer(int playerId, $String playerName, $String state) {
 		if(gameBegun) { return; } //Do nothing if the game has started
 
-		//Serialize this data into json an give to player
+		stringstream s;
+
+		s << "{" <<
+				"\"player\":{" <<
+					"\"id\":" << playerId << ", " <<
+					"\"name\":" << "\"" << playerName->c_str() << "\", " <<
+					"\"state\":" << "\"" << state->c_str() << "\"" << 
+				"}" <<
+			"}";
+
+		player->tell(new String(s.str()));
 	}
 
 	public: void relayChallenge(int challenger) {
 		if(gameBegun) { return; } //Do nothing if the game has started
 
-		//Send json to player indicating a challenge was made by challenger
+		stringstream s;
+
+		s << "{" <<
+				"\"challenge\":" << challenger <<
+			"}";
+
+		player->tell(new String(s.str()));
 	}
 
-	public: void beginGame($Game game) {
-		gameBegun = true;
-		$GameMessenger gm = new GameMessenger(player, game);
+	protected: virtual void tellWorldInternal($<Document> doc) {
+		if(doc->HasMember("challenge")) {
+			lobby->issueChallenge(player->getId(), doc->Get("challenge").GetInt());
+		}
 
-		game->setMessenger(gm);
+		else if(doc->HasMember("accept")) {
+			lobby->acceptChallenge(doc->Get("challenge").GetInt());
+		}
+	}
+
+	public: $GameMessenger beginGame($Game game) {
+		gameBegun = true;
+
+		$GameMessenger gm = new GameMessenger(player, game);
 		player->setMessenger(gm);
+		return gm;
 	}
 };
 

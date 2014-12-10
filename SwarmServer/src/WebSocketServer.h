@@ -19,10 +19,10 @@ class WebSocketServer : public SocketServer {
 
 	//Methods
 	public: $WebSocket accept() {
-		if(isClosed()) { throw new Exception("Accept Cannot be Called on a Closed Socket"); }
+		if(isClosed()) { throw Exception("Accept Cannot be Called on a Closed Socket"); }
 
 		int connectionFile = ::accept(socketFile, NULL, 0);
-		if(connectionFile < 0) { throw new Exception("Unexpected Error in the Server"); }
+		if(connectionFile < 0) { throw Exception("Unexpected Error in the Server"); }
 
 		$WebSocket result = new WebSocket(connectionFile);
 		cout << "New Connection" << endl;
