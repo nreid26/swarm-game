@@ -42,7 +42,7 @@ Send
 	{planet:{id:<<int (id of planet)>>, team:<<int>>, troops:<<int (number of troops on planet)>>, time:<<int (unix time in millis)>>}}
 
 	Show troop movements
-	{deployment:{source:<<int (id of planet)>>, destination:<<int (id of planet)>>, team:<<int (team>>, troops:<<troop>>, arrival:<<int (unix time in millis)>>}}
+	{deployment:{source:<<int (id of planet)>>, destination:<<int (id of planet)>>, player:<<int (team>>, troops:<<troop>>, arrival:<<int (unix time in millis)>>}}
 
 	Winner
 	{winner:<<int (player id)>>}

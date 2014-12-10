@@ -134,6 +134,8 @@ class Game : public Thread<void> {
 
 			p.id = planets.size();
 			planets.push_back(p); //Copy the planet into the vector
+			messenger1->relayPlanet(p.id, p.x,p.y,p.z, p.capacity, p.growth, p.player, p.troops);
+			messenger2->relayPlanet(p.id, p.x,p.y,p.z, p.capacity, p.growth, p.player, p.troops);
 		}
 	}
 
@@ -205,8 +207,8 @@ class Game : public Thread<void> {
 
 				meself = NULL; //Eliminate this soon to be lost reference
 
-				messenger1->relayWinner(hasWon);
-				messenger2->relayWinner(hasWon);
+				messenger1->relayWinner(winner);
+				messenger2->relayWinner(winner);
 			}
 			else { //Update the state of that planet on the client side
 				messenger1->relayUpdate(dest, planets[dest].player, planets[dest].troops);
