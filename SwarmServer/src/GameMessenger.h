@@ -3,26 +3,45 @@
 
 #include "$.h"
 #include "Player.h"
+#include "Lobby.h"
 #include "Game.h"
 #include "Messenger.h"
 
-class GameMessenger : public Messenger{
+#include <time.h>
+
+class GameMessenger : public Messenger {
+	//Statics	
+	public: static unsigned long unixMillis() {
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		return (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000 / 1000;
+	}
 	//Data
-	private: $Player player;
 	private: $Game game;
 
 	//Constructor
-	public: GameMessenger($Player player, $Game game) : player(player), game(game) {}
+	public: GameMessenger($Player player, $Game game) : Messenger(player), game(game) {}
 
 	//Methods
 	protected: virtual void tellWorldInternal($<Document> doc) {
+		if(doc->HasMember("deployment")) {
+			const Value& a = doc->Get("deployment");
 
+			int source = a["source"].GetInt();
+			int dest = a["destination"].GetInt();
+
+			game->sendDeployment(player->getId(), source, dest);
+		}
+
+		else if(doc->HasMember("lobby")) {
+			game->surrender(player->getId());
+		}
 	}
 
-	public: beginGame($Game newGame){
+	public: void beginGame($Game newGame){
 		$Game game = newGame;
 	}
-	public: relayPlanet(int id, int x,int y,int z, int capacity, int growth, int player, int troops){
+	public: void relayPlanet(int id, int x,int y,int z, int capacity, int growth, int playerId, int troops){
 		stringstream s;
 
 		s << "{" << 
@@ -30,7 +49,7 @@ class GameMessenger : public Messenger{
 					"\"id\":" << id << ", " << 
 					"\"capacity\":" << capacity << ", " <<
 					"\"growth\":" << growth << ", " <<
-					"\"player\":" << player << ", " <<
+					"\"player\":" << playerId << ", " <<
 					"\"troops\":" << troops << ", " <<
 					"\"position\":{" << 
 						"\"x\":" << x << ", " << 
@@ -42,7 +61,8 @@ class GameMessenger : public Messenger{
 
 		player->tell(new String(s.str()));
 	}
-	public: relayWinner(int winner){
+	
+	public: void relayWinner(int winner){
 		stringstream s;
 
 		s << "{" << 
@@ -50,31 +70,50 @@ class GameMessenger : public Messenger{
 			"}";
 
 		player->tell(new String(s.str()));
+
+		game = NULL;
+		$LobbyMessenger mes = new LobbyMessenger(player);
+		player->setMessenger(mes);
+		Lobby::getInstance()->registerMessenger(mes);
 	}
-	public: relayUpdate( int id, int player, int troops){
+	
+	public: void relayUpdate( int dest, int playerId, int troops){
 		stringstream s;
 
 		s << "{" << 
 				"\"planet\":{" << 
 					"\"id\":" << dest << ", " << 
-					"\"player\":" << player << ", " <<
+					"\"player\":" << playerId << ", " <<
+					"\"time\":" << unixMillis() << ", " <<
 					"\"troops\":" << troops << "" <<
 				"}" <<
 			"}";
 
 		player->tell(new String(s.str()));
 	}
-	public: relayDeployment(int source, int destination, int player,int  troops, int arrivalTime){
+	
+	public: void relayDeployment(int source, int destination, int playerId,int  troops, int arrivalTime){
 		stringstream s;
 
 		s << "{" << 
 				"\"deployment\":{" << 
 					"\"source\":" << source << ", " << 
 					"\"destination\":" << destination << ", " <<
-					"\"player\":" << player << ", " <<
+					"\"player\":" << playerId << ", " <<
 					"\"troops\":" << troops << ", " <<
-					"\"arrival\":" << arrivalTime << "" <<
+					"\"arrival\":" << unixMillis() + arrivalTime <<
 				"}" <<
+			"}";
+
+		player->tell(new String(s.str()));
+	}
+
+	public: void relayTerminator(int radius, int minSep) {
+		stringstream s;
+
+		s << "{" <<
+			"\"radius\":" << radius << ", " <<
+			"\"minimumSeparation\":" << minSep <<
 			"}";
 
 		player->tell(new String(s.str()));

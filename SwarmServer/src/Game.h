@@ -66,10 +66,13 @@ class Game : public Thread<void> {
 
 	public: static $Game createGame($LobbyMessenger a, $LobbyMessenger b) {
 		$Game temp = new Game();
-		temp->myself = temp;
 
+		temp->myself = temp;
 		temp->messenger1 = a->beginGame(temp);
 		temp->messenger2 = b->beginGame(temp);
+
+		temp->generate();
+		temp->start();
 	}
 
 	//Data
@@ -77,7 +80,6 @@ class Game : public Thread<void> {
 	private: $Game myself; //Reference to this object;
 	private: vector<Planet> planets;
 	private: vector<vector<int>> timeMatrix; //Milliseconds between planets
-	private: vector<$<Deployment>>; //So that that the game may delete the 
 
 	private: int depCount = 0;
 	private: int winner = -1;
@@ -85,9 +87,11 @@ class Game : public Thread<void> {
 	private: Semaphore guard; //Guard on planets and depCount
 
 	//Constructor
-	private: Game() : guard(0) { generate(); }
+	private: Game() : guard(0) { }
 
 	//Methods
+	public: bool isWinner() { return winner >= 0; }
+
 		//Building
 	private: void generate() {
 		//Generate each octant of the map
@@ -138,8 +142,8 @@ class Game : public Thread<void> {
 
 			p.id = planets.size();
 			planets.push_back(p); //Copy the planet into the vector
-			messenger1->relayPlanet(p.id, p.x,p.y,p.z, p.capacity, p.growth, p.player, p.troops);
-			messenger2->relayPlanet(p.id, p.x,p.y,p.z, p.capacity, p.growth, p.player, p.troops);
+			messenger1->relayPlanet(p.id, p.x, p.y, p.z, p.capacity, p.growth, p.player, p.troops);
+			messenger2->relayPlanet(p.id, p.x, p.y, p.z, p.capacity, p.growth, p.player, p.troops);
 		}
 	}
 
@@ -153,7 +157,7 @@ class Game : public Thread<void> {
 	private: double distanceSquared(Planet a, Planet b) { return pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2); } //Distance between two planets
 
 		//Play
-	public: void start() { //Gaurd is 0 until this call so the game state is unmodifiable externally
+	public: void start() { //Gaurd is 0 until this call so the game state is unmodifiable externally	
 		Thread::start();
 		guard.signal(); //Let the games begin
 	}
@@ -175,6 +179,8 @@ class Game : public Thread<void> {
 
 	public: void sendDeployment(int playerId, int sourceId, int destId) {
 		guard.wait();
+			if(isWinner()) { return; } //If someone has won do nothing
+
 			if(planets[sourceId].player != playerId) { return; } //If the player does not own the source planet do nothing
 
 			//Take half the troops from the source planet
@@ -194,6 +200,7 @@ class Game : public Thread<void> {
 
 	public: void arriveDeployment(int troops, int dest, int player) {
 		guard.wait();
+		if(isWinner()) { return; } //If someone has won do nothing
 
 			depCount--; //Discount this dep
 
@@ -206,20 +213,28 @@ class Game : public Thread<void> {
 			planets[dest].troops = min(planets[dest].troops, planets[dest].capacity); //Don't exceed planet capacity
 
 			testWinner(); //Test for and declare winner
-			if(winner >= 0) {
-				messenger1->relayWinner(winner);
-				messenger2->relayWinner(winner);
-
-				ThreadDisposer::getInstance()->add(myself);
-				cancel();
-				myself = NULL; //Eliminate this soon to be lost reference
-			}
+			if(isWinner()) { cancel(); }
 			else { //Update the state of that planet on the client side
 				messenger1->relayUpdate(dest, planets[dest].player, planets[dest].troops);
 				messenger2->relayUpdate(dest, planets[dest].player, planets[dest].troops);
-
-				guard.signal();
 			}
+		guard.signal();
+	}
+
+	public: void surrender(int playerId) {
+		guard.wait();
+			if(isWinner()) { return; } //If someone has won do nothing
+
+			int p1 = messenger1->playerId();
+			int p2 = messenger2->playerId();
+
+			//Attempt to set the winner
+			if(p1 == playerId) { winner = p2; }
+			else if(p2 = playerId) { winner = p1; }
+
+			//If there is a winner tell the players
+			if(isWinner()) { cancel(); }
+		guard.signal();
 	}
 
 	private: void testWinner() { //Is there a winner
@@ -234,6 +249,15 @@ class Game : public Thread<void> {
 		if(p1 == 0) { winner = messenger2->playerId(); }
 		else if(p2 == 0) { winner = messenger2->playerId(); }
 	}	
+
+	protected: virtual void cancel() { //Specialized cleanup
+		messenger1->relayWinner(winner);
+		messenger2->relayWinner(winner);
+
+		ThreadDisposer::getInstance()->add(myself);
+		ThreadBase::cancel();
+		myself = NULL; //Eliminate this soon to be lost reference
+	}
 };
 
 const double Game::PI = 3.141592654;

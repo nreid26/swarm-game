@@ -23,7 +23,7 @@ class ConnectionDelegate : public Thread<void> {
 		try {
 			$WebSocket connection = server->accept();
 
-			$Player player = new Player(connection);
+			$Player player = Player::createPlayer(connection);
 			player->start(); //Start player read thread
 			player->setMessenger(new NamingMessenger(player));
 		}

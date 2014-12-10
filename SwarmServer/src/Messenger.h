@@ -11,9 +11,6 @@ using namespace rapidjson;
 using namespace std;
 
 class Messenger {
-	//Statics
-	private: int extract($<Document> doc, $String key) { return doc->operator[][key->c_str()]; }
-
 	//Data
 	protected: $Player player;
 

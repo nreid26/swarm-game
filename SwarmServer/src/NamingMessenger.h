@@ -14,6 +14,8 @@ class NamingMessenger : public Messenger {
 	//Constructor
 	public: NamingMessenger($Player player) : Messenger(player) { }
 
+	public: virtual ~NamingMessenger() { }
+
 	//Methods
 	protected: virtual void tellWorldInternal($<Document> doc) {
 		if(doc->HasMember("name")) { //If message is a name
@@ -24,6 +26,8 @@ class NamingMessenger : public Messenger {
 			player->setMessenger(next); //Reassign the messenger
 		}
 	}
+
+	protected: virtual void playerDied() {	} //At this point the player will clean up after itself
 };
 
 #endif

@@ -20,6 +20,8 @@ class ThreadDisposer : private Thread<void> {
 		this->start();
 	}
 
+	public: virtual ~ThreadDisposer() {	}
+
 	//Data
 	private: vector<$ThreadBase> toKill;
 	private: Semaphore guard;

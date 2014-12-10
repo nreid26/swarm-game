@@ -11,13 +11,14 @@ using namespace rapidjson;
 
 class LobbyMessenger : public Messenger {
 	//Data
-	private: $Lobby lobby;
 	private: int gameBegun;
 
 	//Constructor
-	public: LobbyMessenger($Player player) : Messenger(player), gameBegun(false), lobby(Lobby::getInstance()) /*/assign lobby/*/ { }
+	public: LobbyMessenger($Player player) : Messenger(player), gameBegun(false) {	}
 
 	//Methods
+
+
 	public: void describeOtherPlayer(int playerId, $String playerName, $String state) {
 		if(gameBegun) { return; } //Do nothing if the game has started
 
@@ -48,11 +49,11 @@ class LobbyMessenger : public Messenger {
 
 	protected: virtual void tellWorldInternal($<Document> doc) {
 		if(doc->HasMember("challenge")) {
-			lobby->issueChallenge(player->getId(), doc->Get("challenge").GetInt());
+			Lobby::getInstance()->issueChallenge(player->getId(), doc->Get("challenge").GetInt());
 		}
 
 		else if(doc->HasMember("accept")) {
-			lobby->acceptChallenge(doc->Get("challenge").GetInt());
+			Lobby::getInstance()->acceptChallenge(doc->Get("challenge").GetInt());
 		}
 	}
 
@@ -65,7 +66,7 @@ class LobbyMessenger : public Messenger {
 	}
 
 	public: virtual void playerDied() {
-		lobby->unregisterMessenger(player->getId());
+		Lobby::getInstance()->unregisterMessenger(player->getId());
 	}
 };
 

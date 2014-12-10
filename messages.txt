@@ -25,17 +25,9 @@ Send
 	Information on a planet/body
 	{planet:{capacity:<<int>>, growth:<<int (new troops per 100ms)>>, team:<<int (player id)>>, troops:<<int (number of troops on  planet)>>, position:{x:<<int>>, y:<<int>>,z:<<int>>}}}
 
-	Number of planets
+	Planet terminator
 	{radius:<<int>>, mimimumSeparation:<<int>>}
-
-	Ready (this is a notification thats sent to all clients at the same time)
-	{start:true}
-
-Recieve
-	Confirm Game has loaded
-	{ready:true}
-
-
+dest
 [3: Game]
 Send
 	Update the states of a planet (periodic)
