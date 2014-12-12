@@ -4,6 +4,9 @@
 Receive
 	{name:<<string (player name)>>}
 
+Send
+	{playerId:<<int playerId>>}
+
 [1: Lobby]
 Send
 	Update a player in the lobby (describe player "leaving" revokes challenges to and from that player)
@@ -23,15 +26,23 @@ Recieve
 [2: Creation]
 Send
 	Information on a planet/body
-	{planet:{capacity:<<int>>, growth:<<int (new troops per 100ms)>>, team:<<int (player id)>>, troops:<<int (number of troops on  planet)>>, position:{x:<<int>>, y:<<int>>,z:<<int>>}}}
+	{planet:{capacity:<<int>>, growth:<<int (new troops per 100ms)>>, player:<<int (player id)>>, troops:<<int (number of troops on  planet)>>, position:{x:<<int>>, y:<<int>>,z:<<int>>}}}
 
-	Planet terminator
-	{radius:<<int>>, mimimumSeparation:<<int>>}
-dest
+	Number of planets
+	{radius:<<int>>}
+
+	Ready (this is a notification thats sent to all clients at the same time)
+	{start:true}
+
+Recieve
+	Confirm Game has loaded
+	{ready:true}
+
+
 [3: Game]
 Send
 	Update the states of a planet (periodic)
-	{planet:{id:<<int (id of planet)>>, team:<<int>>, troops:<<int (number of troops on planet)>>, time:<<int (unix time in millis)>>}}
+	{planet:{id:<<int (id of planet)>>, player:<<int>>, troops:<<int (number of troops on planet)>>, time:<<int (unix time in millis)>>}}
 
 	Show troop movements
 	{deployment:{source:<<int (id of planet)>>, destination:<<int (id of planet)>>, player:<<int (team>>, troops:<<troop>>, arrival:<<int (unix time in millis)>>}}
