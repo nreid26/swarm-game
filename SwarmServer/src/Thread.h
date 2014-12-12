@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
-#include <list>
 #include <iostream>
 #include <string>
 #include <pthread.h>

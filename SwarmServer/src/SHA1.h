@@ -28,6 +28,10 @@
 #ifndef SHA1_DEFINED
 #define SHA1_DEFINED
 
+#include <string>
+
+using namespace std;
+
 class SHA1 {
 	private: static inline const unsigned int rol(const unsigned int value, const unsigned int steps) {
 		return ((value << steps) | (value >> (32 - steps)));

@@ -28,6 +28,9 @@
     <Filter Include="Header Files\Util\Socket">
       <UniqueIdentifier>{0132249a-f32c-4a09-9221-4d75273cbc2d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Implementations">
+      <UniqueIdentifier>{070551c7-32ea-4eec-9c36-c3ae6474a3ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ConnectionDelegate.h">
@@ -93,6 +96,33 @@
   <ItemGroup>
     <ClCompile Include="SwarmServer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ConnectionDelegate.cpp">
+      <Filter>Source Files\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Exception.cpp">
+      <Filter>Source Files\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game.cpp">
+      <Filter>Source Files\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameMessenger.cpp">
+      <Filter>Source Files\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Lobby.cpp">
+      <Filter>Source Files\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\LobbyMessenger.cpp">
+      <Filter>Source Files\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Messenger.cpp">
+      <Filter>Source Files\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NamingMessenger.cpp">
+      <Filter>Source Files\Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player.cpp">
+      <Filter>Source Files\Implementations</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

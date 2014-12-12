@@ -83,6 +83,15 @@
     <ClInclude Include="src\WebSocketServer.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ConnectionDelegate.cpp" />
+    <ClCompile Include="src\Exception.cpp" />
+    <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\GameMessenger.cpp" />
+    <ClCompile Include="src\Lobby.cpp" />
+    <ClCompile Include="src\LobbyMessenger.cpp" />
+    <ClCompile Include="src\Messenger.cpp" />
+    <ClCompile Include="src\NamingMessenger.cpp" />
+    <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="SwarmServer.cpp" />
   </ItemGroup>
   <ItemGroup>

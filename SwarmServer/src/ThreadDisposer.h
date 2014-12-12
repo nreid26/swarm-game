@@ -7,7 +7,7 @@
 
 #include <unistd.h> //Sleep
 
-class ThreadDisposer : private Thread<void> {
+class ThreadDisposer : private Thread<int> {
 	//Statics
 	public: static ThreadDisposer& getInstance() {
 		static ThreadDisposer instance;
@@ -26,7 +26,7 @@ class ThreadDisposer : private Thread<void> {
 	private: Semaphore guard;
 
 	//Methods
-	protected: virtual void* run() {
+	protected: virtual int* run() {
 		guard.wait();
 			for(int i = toKill.size() - 1; i >= 0; i--) { //Iterate over to kill and erase any threads that are not running
 				if(!toKill[i]->isRunning()) {
