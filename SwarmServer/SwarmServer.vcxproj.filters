@@ -72,9 +72,6 @@
     <ClInclude Include="src\WebSocketServer.h">
       <Filter>Header Files\Util\Socket</Filter>
     </ClInclude>
-    <ClInclude Include="src\$.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Exception.h">
       <Filter>Header Files\Util</Filter>
     </ClInclude>

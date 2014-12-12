@@ -11,7 +11,6 @@
 #include <errno.h>
 #include <strings.h>
 
-#include "$.h"
 #include <string>
 #include "Semaphore.h"
 
@@ -28,11 +27,11 @@ class Socket {
 
 	private: char buffer[bufferSize]; //Read buffer
 
-	protected: $Semaphore readGuard;
-	protected: $Semaphore writeGuard;
+	protected: Semaphore readGuard;
+	protected: Semaphore writeGuard;
 
 	//Constructor
-	public: Socket($String ipAddress, unsigned int port) : closed(false), readGuard(new Semaphore(1)), writeGuard(new Semaphore(1)) {
+	public: Socket(string& ipAddress, unsigned int port) : closed(false), readGuard(1), writeGuard(1) {
 		//Open socket file
 		if(socketFile = socket(AF_INET, SOCK_STREAM, 0) < 0) {
 			throw Exception("Unable to Initialize");
@@ -41,7 +40,7 @@ class Socket {
 		bzero((char*)&socketDescriptor, sizeof(sockaddr_in)); //0 socket descriptor
 
 		//Bind IP
-		if(!inet_aton(ipAddress->c_str(), &socketDescriptor.sin_addr)) {
+		if(!inet_aton(ipAddress.c_str(), &socketDescriptor.sin_addr)) {
 			throw Exception("Invalid IP Address");
 		}
 
@@ -49,7 +48,7 @@ class Socket {
 		socketDescriptor.sin_port = htons(port);
 	}
 
-	public: Socket(int socketFile) : closed(false), socketFile(socketFile), readGuard(new Semaphore(1)), writeGuard(new Semaphore(1)) { }
+	public: Socket(int socketFile) : closed(false), socketFile(socketFile), readGuard(1), writeGuard(1) { }
 
 	public: virtual ~Socket() {
 		close();
@@ -63,37 +62,37 @@ class Socket {
 		}
 	}
 
-	public: int write($String message) {
+	public: int write(string& message) {
 		if(closed) { throw Exception("Attempt to write to an unopened socket"); }
 
 		//1 writer
-		writeGuard->wait();
+		writeGuard.wait();
 		try {
-			int result = ::write(socketFile, message->c_str(), message->size());
-			writeGuard->signal();
+			int result = ::write(socketFile, message.c_str(), message.size());
+			writeGuard.signal();
 			return result;
 		}
 		catch(...) { //If write fails, signal sem and throw
-			writeGuard->signal();
+			writeGuard.signal();
 			throw Exception("Socket Shutdown During Write");
 		}
 	}
 
-	public: $String read(int len = 0) {
+	public: string read(int len = 0) {
 		if(closed) { throw Exception("Cannot Read an Unopened Socket"); }
 
 		if(len <= 0 || len > bufferSize) { len = bufferSize; } //Unspecified -> max
 
 		//1 reader
-		readGuard->wait(); 
+		readGuard.wait(); 
 		try {
 			size_t received = recv(socketFile, buffer, len, 0); //Block to read, get amount
-			$String result = new String(buffer, received);
-			readGuard->signal(); //Release 
+			string result(buffer, received);
+			readGuard.signal(); //Release 
 			return result; //Return the string
 		}
 		catch(...) { //If read fails, signal sem and throw
-			readGuard->signal();  
+			readGuard.signal();  
 			throw Exception("Socket Shutdown During Read"); 
 		}
 	}
@@ -108,7 +107,5 @@ class Socket {
 
 	public: bool isClosed() { return closed; }
 };
-
-typedef $<Socket> $Socket;
 
 #endif

@@ -1,7 +1,6 @@
 #ifndef _THREAD_DISPOSER
 #define _THREAD_DISPOSER
 
-#include "$.h"
 #include "Thread.h"
 #include "Semaphore.h"
 #include <vector>
@@ -10,27 +9,28 @@
 
 class ThreadDisposer : private Thread<void> {
 	//Statics
-	public: static $<ThreadDisposer> getInstance() {
-		static $<ThreadDisposer> instance = new ThreadDisposer();
+	public: static ThreadDisposer& getInstance() {
+		static ThreadDisposer instance;
 		return instance;
 	}
 
 	//Constructor
 	private: ThreadDisposer() : guard(1) {
-		this->start();
+		start();
 	}
 
 	public: virtual ~ThreadDisposer() {	}
 
 	//Data
-	private: vector<$ThreadBase> toKill;
+	private: vector<ThreadBase*> toKill;
 	private: Semaphore guard;
 
 	//Methods
-	protected: virtual $<void> run() {
+	protected: virtual void* run() {
 		guard.wait();
 			for(int i = toKill.size() - 1; i >= 0; i--) { //Iterate over to kill and erase any threads that are not running
 				if(!toKill[i]->isRunning()) {
+					delete toKill[i];
 					toKill.erase(toKill.begin() + 1);
 				}
 			}
@@ -41,7 +41,7 @@ class ThreadDisposer : private Thread<void> {
 		return NULL;
 	}
 
-	public: void add($ThreadBase victim) {
+	public: void add(ThreadBase* victim) {
 		guard.wait();
 			toKill.push_back(victim);
 		guard.signal();

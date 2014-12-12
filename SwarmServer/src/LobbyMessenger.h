@@ -14,12 +14,14 @@ class LobbyMessenger : public Messenger {
 	private: int gameBegun;
 
 	//Constructor
-	public: LobbyMessenger($Player player) : Messenger(player), gameBegun(false) {	}
+	public: LobbyMessenger(Player* player) : Messenger(player), gameBegun(false) {
+		Lobby::getInstance().registerMessenger(this);
+	}
+
+	public: virtual ~LobbyMessenger() { }
 
 	//Methods
-
-
-	public: void describeOtherPlayer(int playerId, $String playerName, $String state) {
+	public: void describeOtherPlayer(int playerId, string& playerName, string& state) {
 		if(gameBegun) { return; } //Do nothing if the game has started
 
 		stringstream s;
@@ -27,12 +29,12 @@ class LobbyMessenger : public Messenger {
 		s << "{" <<
 				"\"player\":{" <<
 					"\"id\":" << playerId << ", " <<
-					"\"name\":" << "\"" << playerName->c_str() << "\", " <<
-					"\"state\":" << "\"" << state->c_str() << "\"" << 
+					"\"name\":" << "\"" << playerName << "\", " <<
+					"\"state\":" << "\"" << state << "\"" << 
 				"}" <<
 			"}";
 
-		player->tell(new String(s.str()));
+		player->tell(s.str());
 	}
 
 	public: void relayChallenge(int challenger) {
@@ -44,32 +46,30 @@ class LobbyMessenger : public Messenger {
 				"\"challenge\":" << challenger <<
 			"}";
 
-		player->tell(new String(s.str()));
+		player->tell(s.str());
 	}
 
-	protected: virtual void tellWorldInternal($<Document> doc) {
-		if(doc->HasMember("challenge")) {
-			Lobby::getInstance()->issueChallenge(player->getId(), doc->Get("challenge").GetInt());
+	protected: virtual void tellWorldInternal(Document& doc) {
+		if(doc.HasMember("challenge")) {
+			Lobby::getInstance().issueChallenge(playerId(), doc.Get("challenge").GetInt());
 		}
 
-		else if(doc->HasMember("accept")) {
-			Lobby::getInstance()->acceptChallenge(doc->Get("challenge").GetInt());
+		else if(doc.HasMember("accept")) {
+			Lobby::getInstance().acceptChallenge(playerId(), doc.Get("challenge").GetInt());
 		}
 	}
 
-	public: $GameMessenger beginGame($Game game) {
+	public: GameMessenger* beginGame(Game* game) {
 		gameBegun = true;
 
-		$GameMessenger gm = new GameMessenger(player, game);
+		GameMessenger* gm = new GameMessenger(player, game);
 		player->setMessenger(gm);
 		return gm;
 	}
 
 	public: virtual void playerDied() {
-		Lobby::getInstance()->unregisterMessenger(player->getId());
+		Lobby::getInstance().unregisterMessenger(player->getId());
 	}
 };
-
-typedef $<LobbyMessenger> $LobbyMessenger;
 
 #endif

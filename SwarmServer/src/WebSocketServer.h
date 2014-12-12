@@ -1,7 +1,6 @@
 #ifndef _WEBSOCKET_SERVER
 #define _WEBSOCKET_SERVER
 
-#include "$.h"
 #include "SocketServer.h"
 #include "WebSocket.h"
 
@@ -18,18 +17,14 @@ class WebSocketServer : public SocketServer {
 	public: virtual ~WebSocketServer() { }
 
 	//Methods
-	public: $WebSocket accept() {
+	public: virtual WebSocket* accept() {
 		if(isClosed()) { throw Exception("Accept Cannot be Called on a Closed Socket"); }
 
 		int connectionFile = ::accept(socketFile, NULL, 0);
 		if(connectionFile < 0) { throw Exception("Unexpected Error in the Server"); }
 
-		$WebSocket result = new WebSocket(connectionFile);
-		cout << "New Connection" << endl;
-		return result;
+		return new WebSocket(connectionFile);
 	}
 };
-
-typedef $<WebSocketServer> $WebSocketServer;
 
 #endif

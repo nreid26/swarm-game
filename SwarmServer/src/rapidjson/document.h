@@ -239,7 +239,7 @@ public:
 	}
 	const GenericValue& operator[](const Ch* name) const { return const_cast<GenericValue&>(*this)[name]; }
 
-	const GenericValue& Get(const Ch* name) { return operator[][name]; }
+	const GenericValue& Get(const Ch* name) { return operator[](name); }
 
 	//! Member iterators.
 	ConstMemberIterator MemberBegin() const	{ RAPIDJSON_ASSERT(IsObject()); return data_.o.members; }

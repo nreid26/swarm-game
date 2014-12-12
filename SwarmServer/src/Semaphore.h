@@ -7,7 +7,6 @@
 #include <sys/stat.h>        // For mode constants
 
 #include <string>
-#include "$.h"
 
 class Semaphore {
 	//Data
@@ -28,7 +27,5 @@ class Semaphore {
 
 	public: void signal() { sem_post(&sem); }
 };
-
-typedef $<Semaphore> $Semaphore;
 
 #endif

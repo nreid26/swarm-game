@@ -9,7 +9,6 @@
 
 #include "Exception.h"
 
-#include "$.h"
 #include <string>
 
 using namespace std;
@@ -47,7 +46,7 @@ class SocketServer {
 	}
 
 	//Methods
-	public: $Socket accept() { //Blocks on the bound port and produces new Sockets
+	public: virtual Socket* accept() { //Blocks on the bound port and produces new Sockets
 		if(closed) { throw Exception("Accept Cannot be Called on a Closed Socket"); }
 
 		int connectionFile = ::accept(socketFile, NULL, 0);

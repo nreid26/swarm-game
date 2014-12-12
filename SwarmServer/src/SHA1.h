@@ -28,8 +28,6 @@
 #ifndef SHA1_DEFINED
 #define SHA1_DEFINED
 
-#include "$.h"
-
 class SHA1 {
 	private: static inline const unsigned int rol(const unsigned int value, const unsigned int steps) {
 		return ((value << steps) | (value >> (32 - steps)));
@@ -101,15 +99,15 @@ class SHA1 {
 		result[4] += e;
 	}
 
-	public: static $String calc($String input) {
-		const int bytelength = input->size();
-		$String hash = "";
+	public: static string calc(string input) {
+		const int bytelength = input.size();
+		string hash = "";
 
 		// Init the result array.
 		unsigned int result[5] = { 0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0 };
 
 		// Cast the void src pointer to be the byte array we can work with.
-		const unsigned char* sarray = (const unsigned char*)&(input->at(0));
+		const unsigned char* sarray = (const unsigned char*)&(input[0]);
 
 		// The reusable round buffer
 		unsigned int w[80];
@@ -155,7 +153,7 @@ class SHA1 {
 		// Store hash in result pointer, and make sure we get in in the correct order on both endian models.
 		for(int hashByte = 0; hashByte < 20; hashByte++)
 		{
-			hash->push_back(
+			hash.push_back(
 				(result[hashByte >> 2] >> (((3 - hashByte) & 0x3) << 3)) & 0xff
 			);
 		}
@@ -167,27 +165,27 @@ class SHA1 {
      @param hash is 20 bytes of sha1 hash. This is the same data that is the result from the calc function.
      @param hexstring should point to a buffer of at least 41 bytes of size for storing the hexadecimal representation of the hash. A zero will be written at position 40, so the buffer will be a valid zero ended string.
      */
-	public: static $String toHexString($String input) {
+	public: static string toHexstring(string input) {
 		static const char hexDigits[] = "0123456789abcdef";
 
 		char hexBuffer[40];
 
 		for(int hashByte = 20; --hashByte >= 0;)
 		{
-			hexBuffer[hashByte << 1] = hexDigits[(input->at(hashByte) >> 4) & 0xf];
-			hexBuffer[(hashByte << 1) + 1] = hexDigits[input->at(hashByte) & 0xf];
+			hexBuffer[hashByte << 1] = hexDigits[(input[hashByte] >> 4) & 0xf];
+			hexBuffer[(hashByte << 1) + 1] = hexDigits[input[hashByte] & 0xf];
 		}
 
-		return $String(hexBuffer);
+		return string(hexBuffer);
 	}
 
-	public: static $String toBase64String($String input) {
+	public: static string toBase64string(string input) {
 		static const char base64_chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-		const char* bytes_to_encode = &(input->at(0));
-		int in_len = input->length();
+		const char* bytes_to_encode = &(input[0]);
+		int in_len = input.length();
 
-		$String ret = "";
+		string ret = "";
 		int i = 0;
 		int j = 0;
 		unsigned char char_array_3[3];
@@ -201,7 +199,7 @@ class SHA1 {
 				char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
 				char_array_4[3] = char_array_3[2] & 0x3f;
 
-				for(i = 0; i < 4; i++) { ret->push_back(base64_chars[char_array_4[i]]); }
+				for(i = 0; i < 4; i++) { ret.push_back(base64_chars[char_array_4[i]]); }
 
 				i = 0;
 			}
@@ -215,8 +213,8 @@ class SHA1 {
 			char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
 			char_array_4[3] = char_array_3[2] & 0x3f;
 
-			for(j = 0; j < i + 1; j++) { ret->push_back(base64_chars[char_array_4[j]]); }
-			while(i++ < 3) { ret->push_back('='); }
+			for(j = 0; j < i + 1; j++) { ret.push_back(base64_chars[char_array_4[j]]); }
+			while(i++ < 3) { ret.push_back('='); }
 		}
 
 		return ret;

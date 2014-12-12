@@ -2,23 +2,20 @@
 #define _EXCEPTION
 
 #include <string>
-#include "$.h"
 
 using namespace std;
 
 class Exception {
 	//Data
 	private:
-	$String message;
+	string message;
 
 	//Constructor
-	public: Exception($String message = (String*)NULL) : message(message) {}
+	public: Exception(string message = "") : message(message) {}
 
 	public: virtual ~Exception() {}
 	//Members
-	public: $String getMessage() { return message; }
+	public: const string& getMessage() { return message; }
 };
-
-typedef $<Exception> $ExceptionS;
 
 #endif

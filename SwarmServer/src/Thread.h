@@ -10,7 +10,8 @@
 #include <pthread.h>
 #include "unistd.h"
 
-#include "$.h"
+#include "Exception.h"
+
 #include <string>
 
 class ThreadBase {
@@ -22,7 +23,7 @@ class ThreadBase {
 	//Constructor
 	public: ThreadBase() : running(false), cancelled(false) { }
 
-	public: ~ThreadBase() { //Execution cannot dangle, execution must be joined before it's container is destroyed
+	public: virtual ~ThreadBase() { //Execution cannot dangle, execution must be joined before it's container is destroyed
 		cancel();
 		join();
 	}
@@ -37,7 +38,6 @@ class ThreadBase {
 	public: bool isRunning() { return running; } //Is the thread currently active?
 };
 
-typedef $<ThreadBase> $ThreadBase;
 
 template <class T> class Thread : public ThreadBase {
 	//Statics
@@ -46,17 +46,26 @@ template <class T> class Thread : public ThreadBase {
 
 		self->running = true;
 
-		while(!self->cancelled) { self->result = self->run(); } //Repeat main as long as the thead is not cancelled (the run can call cancel)
+		try {
+			while(!self->cancelled) { self->result = self->run(); } //Repeat main as long as the thead is not cancelled (the run can call cancel)
+		}
+		catch(Exception e) {
+			cerr << "Thread Terminated Unexpectedly: " << e.getMessage() << endl;
+		}
 
 		self->running = false;
 		return NULL;
 	}
 
 	//Data
-	private: $<T> result;
+	private: T* result;
 
 	//Constructor
-	public: Thread() {}
+	public: Thread() { }
+
+	public: virtual ~Thread() {
+		delete result;
+	}
 
 	//Members
 	public: void start() {
@@ -64,9 +73,9 @@ template <class T> class Thread : public ThreadBase {
 		else if(pthread_create(&threadId, NULL, mainWrapper, this) != 0) { throw Exception("Thread Could Not be Started"); }
 	}
 
-	protected: virtual $<T> run() = 0; //Must be overridden, return is set as result on the object
+	protected: virtual T* run() = 0; //Must be overridden, return is set as result on the object
 	
-	public: $<T> getResult() { return result; }
+	public: T* getResult() { return result; }
 };
 
 #endif // THREAD_H

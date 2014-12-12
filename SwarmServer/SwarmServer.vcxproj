@@ -64,7 +64,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\$.h" />
     <ClInclude Include="src\ConnectionDelegate.h" />
     <ClInclude Include="src\Exception.h" />
     <ClInclude Include="src\Game.h" />

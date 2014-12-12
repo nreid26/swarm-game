@@ -1,9 +1,6 @@
 #ifndef _GAME
 #define _GAME
 
-#define min(a, b) ((a > b) ? b : a)
-
-#include "$.h";
 #include "GameMessenger.h"
 #include "LobbyMessenger.h"
 #include "Exception.h"
@@ -32,29 +29,21 @@ class Game : public Thread<void> {
 	private: class Deployment : public Thread<void> {
 		//Data
 		public: int player, troops, wait, dest;
-		public: $Game parent;
-		private: $<Deployment> myself;
+		public: Game* game;
 
 		//Constructor
-		public: Deployment(int p, int t, int w, int d, $Game g) : player(p), troops(t), wait(w), dest(d), parent(g) { }
+		public: Deployment(int p, int t, int w, int d, Game* g) : player(p), troops(t), wait(w), dest(d), game(g) { 
+			this->start();
+		}
 
 		//Methods
-		protected: $<void> run() {
+		protected: void* run() {
 			usleep(delay * 1000); //Wait for delay ms
 
-			parent->arriveDeployment(troops, dest, player);
-			ThreadDisposer::getInstance()->add(myself);
-
-			parent = NULL;
-			myself = NULL;
+			game->arriveDeployment(troops, dest, player);
 
 			cancel(); //Only run once
 			return NULL;
-		}
-
-		public: void start($<Deployment> myself) {
-			myself->myself = myself;
-			Thread::start();
 		}
 	};
 
@@ -64,32 +53,41 @@ class Game : public Thread<void> {
 	private: const static int radius = 100;
 	private: const static int minSeparation = 7;
 
-	public: static $Game createGame($LobbyMessenger a, $LobbyMessenger b) {
-		$Game temp = new Game();
-
-		temp->myself = temp;
-		temp->messenger1 = a->beginGame(temp);
-		temp->messenger2 = b->beginGame(temp);
-
-		temp->generate();
-		temp->start();
-	}
-
 	//Data
-	private: $GameMessenger messenger1, messenger2;
-	private: $Game myself; //Reference to this object;
+	private: GameMessenger* messenger1, *messenger2;
 	private: vector<Planet> planets;
 	private: vector<vector<int>> timeMatrix; //Milliseconds between planets
+	private: vector<Deployment*> deployments;
 
 	private: int depCount = 0;
 	private: int winner = -1;
 
 	private: Semaphore guard; //Guard on planets and depCount
+	private: Semaphore startGuard;
 
 	//Constructor
-	private: Game() : guard(0) { }
+	public: Game() : guard(0), startGuard(1) messenger1(NULL), messenger2(NULL)S{}
+
+	public: virtual ~Game() {
+		for(int i = 0; i < deployments.size(); i++) { delete deployments[i]; }
+	}
+
 
 	//Methods
+	public: void addMessenger(GameMessenger* msg) {
+		startGuard.wait();
+			if(messenger1 == NULL) { messenger1 = msg; }
+			else if(messenger2 == NULL) { 
+				messenger2 = msg;
+
+				generate();
+
+				start();
+				guard.signal();
+			}
+		startGuard.signal();
+	}
+
 	public: bool isWinner() { return winner >= 0; }
 
 		//Building
@@ -154,15 +152,10 @@ class Game : public Thread<void> {
 
 	private: double randAngle(double sign) { return  PI / 2 * randUnit() * sign; } //Random angle 0..PI/2, signed
 
-	private: double distanceSquared(Planet a, Planet b) { return pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2); } //Distance between two planets
+	private: double distanceSquared(const Planet& a, const Planet& b) { return pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2); } //Distance between two planets
 
 		//Play
-	public: void start() { //Gaurd is 0 until this call so the game state is unmodifiable externally	
-		Thread::start();
-		guard.signal(); //Let the games begin
-	}
-
-	protected: $<void> run() { //Conduct troop growth every 100ms
+	protected: void* run() { //Conduct troop growth every 100ms
 		guard.wait();
 
 			for(int i = 0; i < planets.size(); i++) {
@@ -180,7 +173,6 @@ class Game : public Thread<void> {
 	public: void sendDeployment(int playerId, int sourceId, int destId) {
 		guard.wait();
 			if(isWinner()) { return; } //If someone has won do nothing
-
 			if(planets[sourceId].player != playerId) { return; } //If the player does not own the source planet do nothing
 
 			//Take half the troops from the source planet
@@ -189,8 +181,7 @@ class Game : public Thread<void> {
 
 			//Create a deployment thread
 			depCount++;
-			$<Deployment> dep = new Deployment(playerId, troops, timeMatrix[sourceId][destId], destId, myself);
-			dep->start(dep);
+			deployments.push_back(new Deployment(playerId, troops, timeMatrix[sourceId][destId], destId, this));
 		guard.signal();
 
 		//Tell the players about this deployment
@@ -200,40 +191,43 @@ class Game : public Thread<void> {
 
 	public: void arriveDeployment(int troops, int dest, int player) {
 		guard.wait();
-		if(isWinner()) { return; } //If someone has won do nothing
+			if(isWinner()) { return; } //If someone has won do nothing
 
 			depCount--; //Discount this dep
+			Planet& p(planets[dest]);
 
-			if(planets[dest].player == player) { planets[dest].troops += troops; } //If the player owns the planet
-			else if(planets[dest].troops >= troops) { planets[dest].troops -= troops;} //If the planet has more enemies
+			if(p.player == player) { p.troops += troops; } //If the player owns the planet
+			else if(p.troops >= troops) { p.troops -= troops;} //If the planet has more enemies
 			else { //If the planet has fewer enemies
-				planets[dest].troops = troops - planets[dest].troops;
-				planets[dest].player = player;
+				p.troops = troops - p.troops;
+				p.player = player;
 			}
-			planets[dest].troops = min(planets[dest].troops, planets[dest].capacity); //Don't exceed planet capacity
+			p.troops = min(p.troops, p.capacity); //Don't exceed planet capacity
 
 			testWinner(); //Test for and declare winner
-			if(isWinner()) { cancel(); }
+			if(isWinner()) { 
+				messenger1->relayWinner(winner);
+				messenger2->relayWinner(winner);
+				cancel(); 
+			}
 			else { //Update the state of that planet on the client side
-				messenger1->relayUpdate(dest, planets[dest].player, planets[dest].troops);
-				messenger2->relayUpdate(dest, planets[dest].player, planets[dest].troops);
+				messenger1->relayUpdate(dest, p.player, p.troops);
+				messenger2->relayUpdate(dest, p.player, p.troops);
 			}
 		guard.signal();
 	}
 
-	public: void surrender(int playerId) {
+	public: void surrender(GameMessenger* sur, bool wantsConfirm) {
 		guard.wait();
 			if(isWinner()) { return; } //If someone has won do nothing
 
-			int p1 = messenger1->playerId();
-			int p2 = messenger2->playerId();
+			GameMessenger* win = (messenger1 == sur) ? messenger2 : messenger1;
+			winner = win->playerId();
 
-			//Attempt to set the winner
-			if(p1 == playerId) { winner = p2; }
-			else if(p2 = playerId) { winner = p1; }
+			win->relayWinner(winner);
+			if(wantsConfirm) { sur->relayWinner(winner); }
 
-			//If there is a winner tell the players
-			if(isWinner()) { cancel(); }
+			cancel();
 		guard.signal();
 	}
 
@@ -251,18 +245,12 @@ class Game : public Thread<void> {
 	}	
 
 	protected: virtual void cancel() { //Specialized cleanup
-		messenger1->relayWinner(winner);
-		messenger2->relayWinner(winner);
-
-		ThreadDisposer::getInstance()->add(myself);
+		ThreadDisposer::getInstance().add(this);
 		ThreadBase::cancel();
-		myself = NULL; //Eliminate this soon to be lost reference
 	}
 };
 
 const double Game::PI = 3.141592654;
-const double Game::TROOP_SPEED = 2 * radius / 25;  //units / seconds
-
-typedef $<Game> $Game;
+const double Game::TROOP_SPEED = 2 * radius / 10;  //units / seconds
 
 #endif
