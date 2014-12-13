@@ -43,6 +43,13 @@ class ThreadDisposer : private Thread<int> {
 
 	public: void add(ThreadBase* victim) {
 		guard.wait();
+			for(int i = 0; i < toKill.size(); i++) { //Only add a victim once
+				if(toKill[i] == victim) {
+					guard.signal();
+					return;
+				}
+			}
+
 			toKill.push_back(victim);
 		guard.signal();
 	}

@@ -7,14 +7,19 @@
 using namespace std;
 
 int main() {
-	ConnectionDelegate del(6113);
-	del.start();
+	try {
+		ConnectionDelegate del(6113);
+		del.start();
 
-	cout << "Server Started" << endl;
+		cout << "Server Started" << endl;
 
-	string s = "";
-	while(s != "exit") {
-		getline(cin, s);
+		string s = "";
+		while(s != "exit") {
+			getline(cin, s);
+		}
+	}
+	catch(Exception e) {
+		cerr << "Server Failed: " << e.getMessage() << endl;
 	}
 }
 

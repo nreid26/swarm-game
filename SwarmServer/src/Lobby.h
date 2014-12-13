@@ -28,8 +28,8 @@ class Lobby {
 	private: void _registerMessenger(LobbyMessenger* messenger);
 	public: void registerMessenger(LobbyMessenger* messenger);
 
-	private: void _unregisterMessenger(int playerId);
-	public: void unregisterMessenger(int playerId);
+	private: void _unregisterMessenger(LobbyMessenger* messenger);
+	public: void unregisterMessenger(LobbyMessenger* messenger);
 
 	private: void _issueChallenge(int fromPlayer, int toPlayer);
 	public: void issueChallenge(int fromPlayer, int toPlayer);
@@ -38,7 +38,6 @@ class Lobby {
 	public: void acceptChallenge(int toPlayer, int fromPlayer);
 
 	private: int searchMessengers(int key);
-	private: int searchMessengers(int key, int start, int end);
 };
 
 #endif

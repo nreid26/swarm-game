@@ -62,38 +62,38 @@ class Socket {
 		}
 	}
 
-	public: int write(string& message) {
-		if(closed) { throw Exception("Attempt to write to an unopened socket"); }
-
-		//1 writer
+	public: virtual int write(string& message) {
 		writeGuard.wait();
-		try {
+
+			if(closed) { throw Exception("Attempt to write to an unopened socket"); }
 			int result = ::write(socketFile, message.c_str(), message.size());
-			writeGuard.signal();
-			return result;
-		}
-		catch(...) { //If write fails, signal sem and throw
-			writeGuard.signal();
+
+		writeGuard.signal();
+
+		if(result < 0) {
+			close();
 			throw Exception("Socket Shutdown During Write");
+		}
+		else {
+			return result;
 		}
 	}
 
-	public: string read(int len = 0) {
-		if(closed) { throw Exception("Cannot Read an Unopened Socket"); }
+	public: virtual string read(int len = 0) {
+		readGuard.wait();
 
-		if(len <= 0 || len > bufferSize) { len = bufferSize; } //Unspecified -> max
+			if(closed) { throw Exception("Cannot Read an Unopened Socket"); }
+			if(len <= 0 || len > bufferSize) { len = bufferSize; } //Unspecified -> max
+			int received = recv(socketFile, buffer, len, 0); //Block to read, get amount
 
-		//1 reader
-		readGuard.wait(); 
-		try {
-			size_t received = recv(socketFile, buffer, len, 0); //Block to read, get amount
-			string result(buffer, received);
-			readGuard.signal(); //Release 
-			return result; //Return the string
+		readGuard.signal();
+
+		if(received <= 0) {
+			close();
+			throw Exception("Socket Shutdown During Read");
 		}
-		catch(...) { //If read fails, signal sem and throw
-			readGuard.signal();  
-			throw Exception("Socket Shutdown During Read"); 
+		else {
+			return string(buffer, received);
 		}
 	}
 

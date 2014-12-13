@@ -17,7 +17,7 @@ class WebSocket : public Socket {
 	public: virtual ~WebSocket() { }
 
 	//Methods
-	public: string read() {
+	public: virtual string read() {
 		//Many magic numbers from MDN spec
 
 		//Extact payload size
@@ -33,6 +33,32 @@ class WebSocket : public Socket {
 		}
 
 		return data;
+	}
+
+	public: virtual int write(string& message) {
+		static const char magicByte = 128 + 1; //First byte of message, FIN=1 OPCODE=0x1
+
+		string toSend(&magicByte); //What the socket will receive
+
+		//MASK is bit 8 of first size bit; size bit must be < 128
+		if(message.size() <= 125) { toSend.push_back( (char)message.size() ); } //Push back first byte which is size
+		else if(message.size() < (1 << 16)) { 
+			toSend.push_back(126); //Puch back first byte, then size as next two bytes
+			for(int i = 1; i >= 0; i--) { 
+				toSend.push_back( (char)(message.size() >> (8 * i)) );
+			}
+		}
+		else { 
+			toSend.push_back(126); //Puch back first byte, then size as next four bytes
+			for(int i = 3; i >= 0; i--) {
+				toSend.push_back( (char)(message.size() >> (8 * i)) );
+			}
+		}
+
+		toSend.append("\0\0\0\0"); //Empty mask bytes
+		toSend.append(message);
+
+		return Socket::write(toSend); //Call to base function
 	}
 
 

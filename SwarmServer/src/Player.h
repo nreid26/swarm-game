@@ -8,7 +8,6 @@
 #include "ThreadDisposer.h"
 #include "WebSocket.h"
 
-class ConnectionDelegate;
 class Messenger;
 
 using namespace std;
@@ -16,13 +15,12 @@ using namespace std;
 class Player : public Thread<int> {
 	private: static int nextId();
 
-	private: int id;
+	private: const int id;
 	private: Messenger* messenger;
 	private: string name;
 	private: WebSocket* connection;
-	private: ConnectionDelegate* del;
 
-	public: Player(WebSocket* connection, ConnectionDelegate* del);
+	public: Player(WebSocket* connection);
 	public: virtual ~Player();
 
 	public: const string& getName();

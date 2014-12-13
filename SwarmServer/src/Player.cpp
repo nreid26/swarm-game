@@ -21,8 +21,9 @@ int Player::nextId() {
 	return result;
 }
 
-Player::Player(WebSocket* connection, ConnectionDelegate* del) : connection(connection), id(nextId()), name(""), del(del) {
+Player::Player(WebSocket* connection) : connection(connection), id(nextId()), name(""), messenger(NULL) {
 	start(); //Start player read thread
+	cout << "New Player: " << id << endl;
 }
 
 Player::~Player() {
@@ -32,11 +33,23 @@ Player::~Player() {
 
 const string& Player::getName() { return name; }
 
-void Player::setName(string name) { this->name = name; }
+void Player::setName(string name) { 
+	cout << "Named Player " << id << ": " << name << endl;
+	this->name = name; 
+}
 
 int Player::getId() { return id; }
 
-void Player::tell(string message) { connection->write(message); }
+void Player::tell(string message) {
+	try {
+		connection->write(message); //Attempt to write
+	}
+	catch(Exception e) { //The socekt has crashed
+		messenger->playerDied();
+		cout << "Player " << id << " has died" << endl;
+		cancel();
+	}
+}
 
 void Player::setMessenger(Messenger* messenger) {
 	delete this->messenger;
@@ -45,14 +58,13 @@ void Player::setMessenger(Messenger* messenger) {
 
 int* Player::run() {  //For all time, wait for a message and pass it to the messenger
 	try {
-		messenger->tellWorld(connection->read());
+		string s = connection->read();
+		cout << "player " << id << " was told " << s << endl;
+		messenger->tellWorld(s);
 	}
 	catch(Exception e) { //The socekt has crashed
 		messenger->playerDied();
-		del->removePlayer(this);
-
-		//Schedule myself to die
-		ThreadDisposer::getInstance().add(this);
+		cout << "Player " << id << " has died" << endl;
 		cancel();
 	}
 

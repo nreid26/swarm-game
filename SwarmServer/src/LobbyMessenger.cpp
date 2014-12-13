@@ -27,6 +27,8 @@ void LobbyMessenger::describeOtherPlayer(int playerId, const string& playerName,
 			"}" <<
 		"}";
 
+	cout << "described player as " << s.str() << endl;
+
 	player->tell(s.str());
 }
 
@@ -61,5 +63,6 @@ GameMessenger* LobbyMessenger::beginGame(Game* game) {
 }
 
 void LobbyMessenger::playerDied() {
-	Lobby::getInstance().unregisterMessenger(player->getId());
+	Lobby::getInstance().unregisterMessenger(this);
+	cout << "lobby messenger player died" << endl;
 }

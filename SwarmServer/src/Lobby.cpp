@@ -30,8 +30,6 @@ void Lobby::_registerMessenger(LobbyMessenger* messenger) {
 	int search = searchMessengers(messenger->playerId()); //Search for this messenger in the vector
 
 	if(search >= 0) { return; } //If the element is in there stop
-	search = -(search + 1);
-
 	for(int i = 0; i < messengers.size(); i++) {
 		LobbyMessenger* other = messengers[i];
 
@@ -39,32 +37,32 @@ void Lobby::_registerMessenger(LobbyMessenger* messenger) {
 		messenger->describeOtherPlayer(other->playerId(), other->playerName(), JOINING); //Tell the new player about the existing players
 	}
 
-	messengers.insert(messengers.begin() + search, messenger); //Insert the new messenger into sorted position
+	messengers.push_back(messenger); //Insert the new messenger into sorted position
 	challenges.insert( pair<int, vector<int> >(search, vector<int>()) ); //Prepare a list to store challenges
 }
 void Lobby::registerMessenger(LobbyMessenger* messenger) { guard.wait(); _registerMessenger(messenger); guard.signal(); }
 
-void Lobby::_unregisterMessenger(int playerId) {
-	int search = searchMessengers(playerId); //Search for this messenger in the vector
-
+void Lobby::_unregisterMessenger(LobbyMessenger* messenger) {
+	int search = searchMessengers( messenger->playerId() ); //Search for this messenger in the vector
 	if(search < 0) { return; } //If the element is not in there stop
 
-	LobbyMessenger* msg = messengers[search];
+	cout << "Player " << messenger->playerId() << " is ungegistering" << endl;
+
 	messengers.erase(messengers.begin() + search); //Remvove messenger at search position
-	challenges.erase(playerId); //Delete the list of challenges made by this player
+	challenges.erase( messenger->playerId() ); //Delete the list of challenges made by this player
 
 	for(int i = 0; i < messengers.size(); i++) {
 		LobbyMessenger* other = messengers[i];
 
-		other->describeOtherPlayer(playerId, msg->playerName(), LEAVING); //Tell existing messengers that this player is leaving
+		other->describeOtherPlayer(messenger->playerId(), messenger->playerName(), LEAVING); //Tell existing messengers that this player is leaving
 
 		for(auto itr = challenges[other->playerId()].begin(); itr != challenges[other->playerId()].end();) { //Iterate over each challenge vector
-			if(*itr == playerId) { challenges[other->playerId()].erase(itr); }
+			if(*itr == messenger->playerId()) { challenges[other->playerId()].erase(itr); }
 			else { itr++; }
 		}
 	}
 }
-void Lobby::unregisterMessenger(int playerId) { guard.wait(); _unregisterMessenger(playerId); guard.signal(); }
+void Lobby::unregisterMessenger(LobbyMessenger* messenger) { guard.wait(); _unregisterMessenger(messenger); guard.signal(); }
 
 void Lobby::_issueChallenge(int fromPlayer, int toPlayer) {
 	int searchTo = searchMessengers(toPlayer);
@@ -94,8 +92,8 @@ void Lobby::_acceptChallenge(int toPlayer, int fromPlayer) {
 			if(*itr == toPlayer) { 
 				LobbyMessenger* to = messengers[searchTo], *from = messengers[searchFrom];
 
-				_unregisterMessenger(to->playerId());
-				_unregisterMessenger(from->playerId());
+				_unregisterMessenger(to);
+				_unregisterMessenger(from);
 
 				Game* g = new Game();
 				g->addMessenger(to->beginGame(g));
@@ -106,14 +104,11 @@ void Lobby::_acceptChallenge(int toPlayer, int fromPlayer) {
 }
 void Lobby::acceptChallenge(int toPlayer, int fromPlayer) { guard.wait(); _acceptChallenge(toPlayer, fromPlayer); guard.signal(); }
 
-int Lobby::searchMessengers(int key) { return searchMessengers(key, 0, messengers.size()); } //Wrapper
-
-int Lobby::searchMessengers(int key, int start, int end) { //Recursive binary search of messenger list		
-	int mid = (start + end) / 2;
-	int at = messengers[mid]->playerId();
-
-	if(key == at) { return mid; }
-	else if(start == end) { return -(1 + start); }
-	else if(key < at) { return searchMessengers(key, start, mid); }
-	else { return searchMessengers(key, mid, end); }
+int Lobby::searchMessengers(int key) {
+	for(int i = 0; i < messengers.size(); i++) {
+		if(messengers[i]->playerId() == key) {
+			return i;
+		}
+	}
+	return -1;
 }
