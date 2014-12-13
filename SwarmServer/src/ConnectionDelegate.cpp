@@ -21,7 +21,6 @@ ConnectionDelegate::~ConnectionDelegate() {
 int* ConnectionDelegate::run() {
 	try {
 		WebSocket* connection = server.accept();
-
 		Player* player = new Player(connection);
 
 		players.push_back(player);
@@ -29,6 +28,7 @@ int* ConnectionDelegate::run() {
 	}
 	catch(Exception e) {
 		cerr << e.getMessage() << endl;
+		cancel();
 	}
 
 	return NULL;

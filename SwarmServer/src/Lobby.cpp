@@ -24,7 +24,7 @@ Lobby& Lobby::getInstance() {
 
 Lobby::Lobby() : guard(1) { }
 
-Lobby::~Lobby() {}
+Lobby::~Lobby() { }
 
 void Lobby::_registerMessenger(LobbyMessenger* messenger) {
 	int search = searchMessengers(messenger->playerId()); //Search for this messenger in the vector
@@ -37,16 +37,16 @@ void Lobby::_registerMessenger(LobbyMessenger* messenger) {
 		messenger->describeOtherPlayer(other->playerId(), other->playerName(), JOINING); //Tell the new player about the existing players
 	}
 
-	messengers.push_back(messenger); //Insert the new messenger into sorted position
+	messengers.push_back(messenger); //Insert the new messenger
 	challenges.insert( pair<int, vector<int> >(search, vector<int>()) ); //Prepare a list to store challenges
+
+	cout << "Player " << messenger->playerId() << " Joined the Lobby" << endl;
 }
 void Lobby::registerMessenger(LobbyMessenger* messenger) { guard.wait(); _registerMessenger(messenger); guard.signal(); }
 
 void Lobby::_unregisterMessenger(LobbyMessenger* messenger) {
 	int search = searchMessengers( messenger->playerId() ); //Search for this messenger in the vector
 	if(search < 0) { return; } //If the element is not in there stop
-
-	cout << "Player " << messenger->playerId() << " is ungegistering" << endl;
 
 	messengers.erase(messengers.begin() + search); //Remvove messenger at search position
 	challenges.erase( messenger->playerId() ); //Delete the list of challenges made by this player
@@ -56,11 +56,13 @@ void Lobby::_unregisterMessenger(LobbyMessenger* messenger) {
 
 		other->describeOtherPlayer(messenger->playerId(), messenger->playerName(), LEAVING); //Tell existing messengers that this player is leaving
 
-		for(auto itr = challenges[other->playerId()].begin(); itr != challenges[other->playerId()].end();) { //Iterate over each challenge vector
-			if(*itr == messenger->playerId()) { challenges[other->playerId()].erase(itr); }
-			else { itr++; }
+		vector<int>& otherChallenges = challenges[other->playerId()];
+		for(int j = otherChallenges.size() - 1; j >= 0; j--) { //Iterate over each challenge vector and remove it if it was to the leaving player
+			if(otherChallenges[j] == messenger->playerId()) { otherChallenges[j] = -1; }
 		}
 	}
+
+	cout << "Player " << messenger->playerId() << " Left the Lobby" << endl;
 }
 void Lobby::unregisterMessenger(LobbyMessenger* messenger) { guard.wait(); _unregisterMessenger(messenger); guard.signal(); }
 
@@ -69,14 +71,8 @@ void Lobby::_issueChallenge(int fromPlayer, int toPlayer) {
 	int searchFrom = searchMessengers(fromPlayer);
 	if(searchFrom >= 0 && searchTo >= 0 && searchTo != searchFrom) { //If both players are in lobby and are not the same player
 
-		//Check to ensure this challenge is unique
-		for(auto itr = challenges[fromPlayer].begin(); itr != challenges[fromPlayer].end(); itr++) { //Iterate over each challenge vector
-			if(*itr == toPlayer) { return; } //No double challenging
-		}
-
 		challenges[fromPlayer].push_back(toPlayer); //If so, add it and realy message
 		messengers[searchTo]->relayChallenge(fromPlayer);
-		messengers[fromPlayer]->describeOtherPlayer(toPlayer, messengers[searchTo]->playerName(), CHALLENGED); //Confirm that player was challenged
 	}
 }
 void Lobby::issueChallenge(int fromPlayer, int toPlayer) { guard.wait(); _issueChallenge(fromPlayer, toPlayer); guard.signal(); }
@@ -88,16 +84,18 @@ void Lobby::_acceptChallenge(int toPlayer, int fromPlayer) {
 	if(searchFrom >= 0 && searchTo >= 0 && searchTo != searchFrom) { //If both players are in lobby and are not the same player
 
 		//Check to ensure this challenge exists
-		for(auto itr = challenges[fromPlayer].begin(); itr != challenges[fromPlayer].end(); itr++) { //Iterate over each challenge vector
-			if(*itr == toPlayer) { 
+		vector<int>& fromChallenges = challenges[fromPlayer];
+		for(int i = 0; i < fromChallenges.size(); i++) { //Iterate over each challenge vector
+			if(fromChallenges[i] == toPlayer) { 
 				LobbyMessenger* to = messengers[searchTo], *from = messengers[searchFrom];
 
 				_unregisterMessenger(to);
 				_unregisterMessenger(from);
 
 				Game* g = new Game();
+				cout << "Game Opened Between Players " << to->playerId() << " and " << from->playerId() << endl;
 				g->addMessenger(to->beginGame(g));
-				g->addMessenger(to->beginGame(g));
+				g->addMessenger(from->beginGame(g));
 			}
 		}
 	}

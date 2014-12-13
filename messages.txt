@@ -7,7 +7,7 @@ Receive
 [1: Lobby]
 Send
 	Update a player in the lobby (describe player "leaving" revokes challenges to and from that player)
-	{player:{id:<<int (player id)>>, name:<<string (name of player)>>, state:<<string ("joining", "challenged", "leaving")>>}}
+	{player:{id:<<int (player id)>>, name:<<string (name of player)>>, state:<<string ("joining", "leaving")>>}}
 
 	Forward game request to from one player to another 
 	{challenge:<<int (id of player that issued the challenge)>>}

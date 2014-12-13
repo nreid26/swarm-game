@@ -99,9 +99,9 @@ class Socket {
 
 	public: void close() {
 		if(!closed) {
+			closed = true;
 			shutdown(socketFile, SHUT_RDWR);
 			::close(socketFile);
-			closed = true;
 		}
 	}
 

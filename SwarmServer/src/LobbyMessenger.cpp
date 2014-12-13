@@ -50,7 +50,7 @@ void LobbyMessenger::tellWorldInternal(Document& doc) {
 	}
 
 	else if(doc.HasMember("accept")) {
-		Lobby::getInstance().acceptChallenge(playerId(), doc.Get("challenge").GetInt());
+		Lobby::getInstance().acceptChallenge(playerId(), doc.Get("accept").GetInt());
 	}
 }
 

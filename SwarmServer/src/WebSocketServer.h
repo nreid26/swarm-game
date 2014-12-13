@@ -21,7 +21,7 @@ class WebSocketServer : public SocketServer {
 		if(isClosed()) { throw Exception("Accept Cannot be Called on a Closed Socket"); }
 
 		int connectionFile = ::accept(socketFile, NULL, 0);
-		if(connectionFile < 0) { throw Exception("Unexpected Error in the Server"); }
+		if(connectionFile < 0) { throw Exception("WebSocket Server Shutdown"); }
 
 		return new WebSocket(connectionFile);
 	}

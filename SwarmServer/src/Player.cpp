@@ -28,6 +28,7 @@ Player::Player(WebSocket* connection) : connection(connection), id(nextId()), na
 
 Player::~Player() {
 	delete connection;
+	join(); //Killing the connection will use the messenger, must wait
 	delete messenger;
 }
 
@@ -46,25 +47,27 @@ void Player::tell(string message) {
 	}
 	catch(Exception e) { //The socekt has crashed
 		messenger->playerDied();
+
 		cout << "Player " << id << " has died" << endl;
 		cancel();
 	}
 }
 
 void Player::setMessenger(Messenger* messenger) {
-	delete this->messenger;
+	Messenger* m = this->messenger;
 	this->messenger = messenger;
+	delete m;
 }
 
 int* Player::run() {  //For all time, wait for a message and pass it to the messenger
 	try {
 		string s = connection->read();
-		cout << "player " << id << " was told " << s << endl;
 		messenger->tellWorld(s);
 	}
 	catch(Exception e) { //The socekt has crashed
 		messenger->playerDied();
-		cout << "Player " << id << " has died" << endl;
+
+		cout << "Player " << id << " Has Disconnected" << endl;
 		cancel();
 	}
 

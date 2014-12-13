@@ -57,9 +57,9 @@ class SocketServer {
 
 	public: void close() { //Close the socket and force an calls to accept to fail
 		if(!closed) {
+			closed = true;
 			shutdown(socketFile, SHUT_RDWR);
 			::close(socketFile);
-			closed = true;
 		}
 	}
 

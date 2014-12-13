@@ -19,7 +19,7 @@ class ThreadDisposer : private Thread<int> {
 		start();
 	}
 
-	public: virtual ~ThreadDisposer() {	}
+	public: virtual ~ThreadDisposer() { }
 
 	//Data
 	private: vector<ThreadBase*> toKill;
@@ -27,6 +27,8 @@ class ThreadDisposer : private Thread<int> {
 
 	//Methods
 	protected: virtual int* run() {
+		usleep(1000 * 1000);
+
 		guard.wait();
 			for(int i = toKill.size() - 1; i >= 0; i--) { //Iterate over to kill and erase any threads that are not running
 				if(!toKill[i]->isRunning()) {
@@ -35,8 +37,6 @@ class ThreadDisposer : private Thread<int> {
 				}
 			}
 		guard.signal();
-
-		usleep(1000 * 1000);
 
 		return NULL;
 	}

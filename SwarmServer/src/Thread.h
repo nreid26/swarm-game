@@ -60,7 +60,7 @@ template <class T> class Thread : public ThreadBase {
 	private: T* result;
 
 	//Constructor
-	public: Thread() { }
+	public: Thread() : result(NULL) { }
 
 	public: virtual ~Thread() {
 		delete result;
