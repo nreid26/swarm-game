@@ -57,7 +57,6 @@ class Game : public Thread<int> {
 	private: int winner;
 
 	private: Semaphore guard; //Guard on planets and depCount
-	private: Semaphore startGuard;
 
 	public: Game();
 	public: virtual ~Game();

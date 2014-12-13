@@ -39,7 +39,7 @@ void GameMessenger::relayPlanet(int id, int x,int y,int z, int capacity, int gro
 	stringstream s;
 
 	s << "{" << 
-			"\"planet\":{" << 
+			"\"createPlanet\":{" << 
 				"\"id\":" << id << ", " << 
 				"\"capacity\":" << capacity << ", " <<
 				"\"growth\":" << growth << ", " <<
@@ -73,11 +73,11 @@ void GameMessenger::relayUpdate(int dest, int playerId, int troops){
 	stringstream s;
 
 	s << "{" << 
-			"\"planet\":{" << 
+			"\"updatePlanet\":{" << 
 				"\"id\":" << dest << ", " << 
 				"\"player\":" << playerId << ", " <<
 				"\"time\":" << unixMillis() << ", " <<
-				"\"troops\":" << troops << "" <<
+				"\"troops\":" << troops <<
 			"}" <<
 		"}";
 

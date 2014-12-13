@@ -22,9 +22,9 @@ using namespace std;
 const int Game::radius = 100;
 const int Game::minSeparation = 7;
 const double Game::PI = 3.141592654;
-const double Game::TROOP_SPEED = 2 * radius / 10;  //units / seconds
+const double Game::TROOP_SPEED = 2 * radius / 10 / 1000;  //units / millisecond
 
-Game::Game() : guard(0), startGuard(1), messenger1(NULL), messenger2(NULL), depCount(0), winner(-1) {
+Game::Game() : guard(0), messenger1(NULL), messenger2(NULL), depCount(0), winner(-1) {
 	srand(time(0));
 }
 
@@ -33,17 +33,15 @@ Game::~Game() {
 }
 
 void Game::addMessenger(GameMessenger* msg) {
-	startGuard.wait();
-		if(messenger1 == NULL) { messenger1 = msg; }
-		else if(messenger2 == NULL) { 
-			messenger2 = msg;
+	if(messenger1 == NULL) { messenger1 = msg; }
+	else if(messenger2 == NULL) { 
+		messenger2 = msg;
 
-			generate();
+		generate();
 
-			start();
-			guard.signal();
-		}
-	startGuard.signal();
+		start();
+		guard.signal(); //Let messengers do stuff
+	}
 }
 
 bool Game::isWinner() { return winner >= 0; }
@@ -60,12 +58,12 @@ void Game::generate() {
 
 	for(int a = 0; a < planets.size(); a++) {
 		for(int b = 0; b < planets.size(); b++) {
-			timeMatrix[a][b] = (int)( sqrt(distanceSquared(planets[a], planets[b])) / TROOP_SPEED * 1000);
+			timeMatrix[a][b] = (int)( sqrt(distanceSquared(planets[a], planets[b])) / TROOP_SPEED );
 		}
 	}
 }
 
-void Game::generateSector(double sp, double st, int mag, int sum) {
+void Game::generateSector(double sp, double st, int magSign, int sum) {
 	Planet p;
 
 	p.player = -1;
@@ -81,22 +79,24 @@ void Game::generateSector(double sp, double st, int mag, int sum) {
 		while(true) {
 			int phi = randAngle(sp);
 			int theta = randAngle(st);
+			int mag = radius * magSign * randUnit();
 
 			p.z = sin(phi) * mag;
 			p.y = cos(phi) * sin(theta) * mag;
 			p.x = cos(phi) * cos(theta) * mag;
 
 			int i;
-			for(i = 0; i < planets.size() && distanceSquared(planets[i], p) >= minSeparation * minSeparation; i++) {} //Ensure this new planet is at least minSeparation from all others
-			if(i == planets.size()) { break; }
+			for(i = 0; i < planets.size() && distanceSquared(planets[i], p) >= minSeparation * minSeparation; i++) {} //Loop over planets until none left or one too close
+			if(i == planets.size()) { break; } //i counted over all planets (all passed)
 		}
-
-		//Add cells to the time matrix
-		timeMatrix.push_back(vector<int>());
-		for(int i = 0; i < timeMatrix.size(); i++) { timeMatrix[i].push_back(0); }
 
 		p.id = planets.size();
 		planets.push_back(p); //Copy the planet into the vector
+
+		//Add cells to the time matrix
+		timeMatrix.push_back(vector<int>(timeMatrix.size(), 0));
+		for(int i = 0; i < timeMatrix.size(); i++) { timeMatrix.back().push_back(0); } //Add one row to all columns
+
 		messenger1->relayPlanet(p.id, p.x, p.y, p.z, p.capacity, p.growth, p.player, p.troops);
 		messenger2->relayPlanet(p.id, p.x, p.y, p.z, p.capacity, p.growth, p.player, p.troops);
 	}
