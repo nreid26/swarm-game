@@ -47,6 +47,7 @@ class Game : public Thread<int> {
 	private: const static int radius;
 	private: const static int minSeparation;
 	private: const static double TROOP_SPEED;
+	private: const static double CENT_TIME;
 
 	private: GameMessenger* messenger1, *messenger2;
 	private: vector<Planet> planets;

@@ -16,6 +16,10 @@ void NamingMessenger::tellWorldInternal(Document& doc) {
 
 		player->setName( doc.Get("name").GetString() ); //Set the name on the player
 
+		stringstream s;
+		s << "{\"playerId\":" << playerId() << "}";
+		player->tell(s.str());
+
 		Messenger* next = new LobbyMessenger(player);
 		player->setMessenger(next); //Reassign the messenger
 	}

@@ -13,7 +13,7 @@ using namespace rapidjson;
 unsigned long GameMessenger::unixMillis() {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000 / 1000;
+	return (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
 }
 
 GameMessenger::GameMessenger(Player* player, Game* game) : Messenger(player), game(game) {}
