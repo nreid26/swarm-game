@@ -22,7 +22,7 @@ using namespace std;
 const int Game::radius = 100;
 const int Game::minSeparation = 7;
 const double Game::PI = 3.141592654;
-const double Game::TROOP_SPEED = 2 * radius / 10 / 1000;  //units / millisecond
+const double Game::TROOP_SPEED = (double)2 * radius / 4 / 1000;  //units / millisecond
 
 Game::Game() : guard(0), messenger1(NULL), messenger2(NULL), depCount(0), winner(-1) {
 	srand(time(0));
@@ -47,8 +47,7 @@ void Game::addMessenger(GameMessenger* msg) {
 bool Game::isWinner() { return winner >= 0; }
 
 void Game::generate() {
-	//Generate each octant of the map
-	for(int a = -1; a < 3; a += 2) {
+	for(int a = -1; a < 3; a += 2) { //Generate each octant of the map
 		for(int b = -1; b < 3; b += 2) {
 			for(int c = -1; c < 3; c += 2) {
 				generateSector(a, b, c, 500);
@@ -56,11 +55,27 @@ void Game::generate() {
 		}
 	}
 
-	for(int a = 0; a < planets.size(); a++) {
+	//Give each player a planet
+	planets.front().player = messenger1->playerId();
+	planets.back().player = messenger2->playerId();
+
+	timeMatrix = vector<vector<int> >(planets.size(), vector<int>(planets.size(), 0)); //Construct the time matrix
+
+	for(int a = 0; a < planets.size(); a++) { //Fill the time matrix
 		for(int b = 0; b < planets.size(); b++) {
-			timeMatrix[a][b] = (int)( sqrt(distanceSquared(planets[a], planets[b])) / TROOP_SPEED );
+			timeMatrix[a][b] = (int)( sqrt(distanceSquared(planets[a], planets[b])) / TROOP_SPEED);
 		}
 	}
+
+	for(int i = 0; i < planets.size(); i++) { //Tell each player about the planets
+		Planet& p = planets[i];
+		messenger1->relayPlanet(p.id, p.x, p.y, p.z, p.capacity, p.growth, p.player, p.troops);
+		messenger2->relayPlanet(p.id, p.x, p.y, p.z, p.capacity, p.growth, p.player, p.troops);
+	}
+
+	//End world building
+	messenger1->relayTerminator(radius, minSeparation);
+	messenger2->relayTerminator(radius, minSeparation);
 }
 
 void Game::generateSector(double sp, double st, int magSign, int sum) {
@@ -79,7 +94,7 @@ void Game::generateSector(double sp, double st, int magSign, int sum) {
 		while(true) {
 			int phi = randAngle(sp);
 			int theta = randAngle(st);
-			int mag = radius * magSign * randUnit();
+			int mag = radius * magSign * (1 - randUnit() * randUnit());
 
 			p.z = sin(phi) * mag;
 			p.y = cos(phi) * sin(theta) * mag;
@@ -92,18 +107,11 @@ void Game::generateSector(double sp, double st, int magSign, int sum) {
 
 		p.id = planets.size();
 		planets.push_back(p); //Copy the planet into the vector
-
-		//Add cells to the time matrix
-		timeMatrix.push_back(vector<int>(timeMatrix.size(), 0));
-		for(int i = 0; i < timeMatrix.size(); i++) { timeMatrix.back().push_back(0); } //Add one row to all columns
-
-		messenger1->relayPlanet(p.id, p.x, p.y, p.z, p.capacity, p.growth, p.player, p.troops);
-		messenger2->relayPlanet(p.id, p.x, p.y, p.z, p.capacity, p.growth, p.player, p.troops);
 	}
 }
 
 double Game::randUnit() { //Random number 0..1
-	return (rand() % 1000 + 1) / 1000.0;
+	return (double)(rand() % 10001) / 10000;
 }
 
 double Game::randAngle(double sign) { return  PI / 2 * randUnit() * sign; } //Random angle 0..PI/2, signed
@@ -175,6 +183,8 @@ void Game::arriveDeployment(int troops, int dest, int player) {
 void Game::surrender(GameMessenger* sur, bool wantsConfirm) {
 	guard.wait();
 		if(isWinner()) { return; } //If someone has won do nothing
+		Thread::cancel();
+		join();
 
 		GameMessenger* win = (messenger1 == sur) ? messenger2 : messenger1;
 		winner = win->playerId();
