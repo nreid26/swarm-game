@@ -15,7 +15,6 @@ using namespace std;
 
 const string Lobby::JOINING("joining");
 const string Lobby::LEAVING("leaving");
-const string Lobby::CHALLENGED("challenged");
 
 Lobby& Lobby::getInstance() {
 	static Lobby instance; //Implicitly threadsafe singleton construction
@@ -24,7 +23,11 @@ Lobby& Lobby::getInstance() {
 
 Lobby::Lobby() : guard(1) { }
 
-Lobby::~Lobby() { }
+Lobby::~Lobby() {
+	for(int i = 0; i < games.size(); i++) {
+		delete games[i];
+	}
+}
 
 void Lobby::_registerMessenger(LobbyMessenger* messenger) {
 	int search = searchMessengers(messenger->playerId()); //Search for this messenger in the vector
@@ -93,6 +96,7 @@ void Lobby::_acceptChallenge(int toPlayer, int fromPlayer) {
 				_unregisterMessenger(from);
 
 				Game* g = new Game();
+				games.push_back(g);
 				cout << "Game Opened Between Players " << to->playerId() << " and " << from->playerId() << endl;
 				g->addMessenger(to->beginGame(g));
 				g->addMessenger(from->beginGame(g));

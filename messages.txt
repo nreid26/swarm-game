@@ -26,7 +26,7 @@ Recieve
 [2: Creation]
 Send
 	Information on a planet/body
-	{createPlanet:{capacity:<<int>>, growth:<<int (new troops per 100ms)>>, player:<<int (player id)>>, troops:<<int (number of troops on  planet)>>, position:{x:<<int>>, y:<<int>>, z:<<int>>}}}
+	{createPlanet:{capacity:<<int>>, growth:<<int (new troops per second)>>, player:<<int (player id)>>, troops:<<int (number of troops on  planet)>>, position:{x:<<int>>, y:<<int>>, z:<<int>>}}}
 
 	Number of planets
 	{radius:<<int>>}
@@ -42,10 +42,10 @@ Recieve
 [3: Game]
 Send
 	Update the states of a planet (periodic)
-	{updateplanet:{id:<<int (id of planet)>>, player:<<int>>, troops:<<int (number of troops on planet)>>, time:<<int (unix time in millis)>>}}
+	{updatePlanet:{id:<<int (id of planet)>>, player:<<int>>, troops:<<int (number of troops on planet)>>}}
 
 	Show troop movements
-	{deployment:{source:<<int (id of planet)>>, destination:<<int (id of planet)>>, player:<<int (team>>, troops:<<troop>>, arrival:<<int (unix time in millis)>>}}
+	{deployment:{source:<<int (id of planet)>>, destination:<<int (id of planet)>>, player:<<int (team>>, troops:<<troop>>, duration:<<int (time in millis)>>}}
 
 	Winner
 	{winner:<<int (player id)>>}

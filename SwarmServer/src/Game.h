@@ -29,8 +29,10 @@ class Game : public Thread<int> {
 
 		//Constructor
 		public: Deployment(int p, int t, int w, int d, Game* g) : player(p), troops(t), wait(w), dest(d), game(g) { 
-			this->start();
+			start();
 		}
+
+		public: virtual ~Deployment() {	}
 
 		//Methods
 		protected: int* run() {
@@ -44,10 +46,10 @@ class Game : public Thread<int> {
 	};
 
 	private: const static double PI;
-	private: const static int radius;
-	private: const static int minSeparation;
 	private: const static double TROOP_SPEED;
 	private: const static double CENT_TIME;
+	private: const static int systemRadius;
+	private: const static int minSeparation;
 
 	private: GameMessenger* messenger1, *messenger2;
 	private: vector<Planet> planets;
@@ -65,10 +67,12 @@ class Game : public Thread<int> {
 	public: void addMessenger(GameMessenger* msg);
 	public: bool isWinner();
 
-	private: void generate();
-	private: void generateSector(double sp, double st, int mag, int sum);
+	private: void generateSystem();
+	private: void generateSector(int signPhi, int signTheta, int signMagnitude, int totalCapacity);
+	private: Planet generatePlanet(int signPhi, int signTheta, int signMagnitude, int capacity);
+	private: void assignInitialPlanets();
 	private: double randUnit();
-	private: double randAngle(double sign);
+	private: double randAngle();
 	private: double distanceSquared(const Planet& a, const Planet& b);
 
 	protected: int* run();
@@ -76,8 +80,8 @@ class Game : public Thread<int> {
 	public: void arriveDeployment(int troops, int dest, int player);
 	public: void surrender(GameMessenger* sur, bool wantsConfirm);
 
-	private: void testWinner();
-	protected: virtual void cancel();
+	private: void calculateWinner();
+	private: void cleanUpGame();
 };
 
 #endif

@@ -24,7 +24,7 @@ class SocketServer {
 		// The first call has to be to socket(). This creates a UNIX socket.
 		socketFile = socket(AF_INET, SOCK_STREAM, 0);
 		if(socketFile < 0)
-			throw Exception("Unable to open the socket server");
+			throw Exception("Unable to Open the Socket Server");
 
 		// The second call is to bind().  This identifies the socket file
 		// descriptor with the description of the kind of socket we want to have.
@@ -34,7 +34,7 @@ class SocketServer {
 		socketDescriptor.sin_addr.s_addr = INADDR_ANY;
 
 		if(bind(socketFile, (sockaddr*)&socketDescriptor, sizeof(socketDescriptor)) < 0) {
-			throw Exception("Unable to bind socket to requested port");
+			throw Exception("Unable to Bind Socket to Requested Port");
 		}
 
 		// Set up a maximum number of pending connections to accept

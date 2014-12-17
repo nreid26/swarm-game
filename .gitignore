@@ -1,1 +1,3 @@
 SwarmServer/*.opensdf
+SwarmClient/node_modules/*
+SwarmServer/three.min.js

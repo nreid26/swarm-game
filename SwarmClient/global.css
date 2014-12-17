@@ -1,0 +1,41 @@
+body {
+    margin: 0;
+
+	background-image: url('/images/space.jpg');
+	background-size: cover;
+	background-repeat: no-repeat;
+
+    color: white;
+
+    overflow: hidden;
+}
+
+#lobby, .troop_tag {
+    border-radius: 3px;   
+    background: rgba(105, 153, 153, 0.5);
+}
+
+.lobby_element {
+    margin: 5px;
+}
+
+.lobby_element * {
+    margin: 10px;
+}
+
+#lobby {
+    list-style-type: none;
+    margin: 20px 20px;
+}
+
+.troop_tag {
+    position: relative;
+    z-index: 100;
+    display: inline-block;
+    padding: 3px;
+
+    /*Unselectable*/
+    -webkit-user-select: none; /* Chrome/Safari */        
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE10+ */
+}

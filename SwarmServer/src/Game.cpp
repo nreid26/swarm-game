@@ -19,10 +19,10 @@
 
 using namespace std;
 
-const int Game::radius = 100;
+const int Game::systemRadius = 100;
 const int Game::minSeparation = 7;
 const double Game::PI = 3.141592654;
-const double Game::TROOP_SPEED = (double)2 * radius / 4 / 1000;  //units / millisecond
+const double Game::TROOP_SPEED = (double)2 * systemRadius / 12 / 1000;  // distance units / millisecond
 const double Game::CENT_TIME = 30; //Seconds
 
 Game::Game() : guard(0), messenger1(NULL), messenger2(NULL), depCount(0), winner(-1) {
@@ -38,7 +38,7 @@ void Game::addMessenger(GameMessenger* msg) {
 	else if(messenger2 == NULL) { 
 		messenger2 = msg;
 
-		generate();
+		generateSystem();
 
 		start();
 		guard.signal(); //Let messengers do stuff
@@ -47,7 +47,7 @@ void Game::addMessenger(GameMessenger* msg) {
 
 bool Game::isWinner() { return winner >= 0; }
 
-void Game::generate() {
+void Game::generateSystem() {
 	for(int a = -1; a < 3; a += 2) { //Generate each octant of the map
 		for(int b = -1; b < 3; b += 2) {
 			for(int c = -1; c < 3; c += 2) {
@@ -56,17 +56,14 @@ void Game::generate() {
 		}
 	}
 
-	//Give each player a planet
-	planets.front().player = messenger1->playerId();
-	planets.back().player = messenger2->playerId();
-
 	timeMatrix = vector<vector<int> >(planets.size(), vector<int>(planets.size(), 0)); //Construct the time matrix
-
 	for(int a = 0; a < planets.size(); a++) { //Fill the time matrix
 		for(int b = 0; b < planets.size(); b++) {
 			timeMatrix[a][b] = sqrt(distanceSquared(planets[a], planets[b])) / TROOP_SPEED;
 		}
 	}
+
+	assignInitialPlanets();
 
 	for(int i = 0; i < planets.size(); i++) { //Tell each player about the planets
 		Planet& p = planets[i];
@@ -75,47 +72,81 @@ void Game::generate() {
 	}
 
 	//End world building
-	messenger1->relayTerminator(radius, minSeparation);
-	messenger2->relayTerminator(radius, minSeparation);
+	messenger1->relayTerminator(systemRadius, minSeparation);
+	messenger2->relayTerminator(systemRadius, minSeparation);
 }
 
-void Game::generateSector(double sp, double st, int magSign, int sum) {
-	Planet p;
+void Game::assignInitialPlanets() {
+	int cap = 100;
+	vector<int> applicable;
 
-	p.player = -1;
-	p.troops = 50;
+	while(applicable.size() < 2) { //Collect the planets of one capacity until there are at least 2
+		for(int i = 0; i < planets.size(); i++) {
+			if(i == 0) { applicable.clear(); }
 
-	while(sum > 0) {
-		p.capacity = 100 * ((4 * randUnit()) + 1);  //Set the growth of the planet from 100 * (1..5)
-		p.growth = 100 / CENT_TIME; //Set the growth rate based on capacity and fill time
-
-		sum -= p.capacity; //Reduce remaning capacity in this slice
-
-		//Assign and check positions until a valid one is found
-		while(true) {
-			double phi = randAngle(sp);
-			double theta = randAngle(st);
-			double mag = radius * magSign * (1 - randUnit() * randUnit());
-
-			p.z = sin(phi) * mag;
-			p.y = cos(phi) * sin(theta) * mag;
-			p.x = cos(phi) * cos(theta) * mag;
-
-			int i;
-			for(i = 0; i < planets.size() && distanceSquared(planets[i], p) >= minSeparation * minSeparation; i++) {} //Loop over planets until none left or one too close
-			if(i == planets.size()) { break; } //i counted over all planets (all passed)
+			if(planets[i].capacity == cap) { applicable.push_back(i); }
 		}
+		cap += 100;
+	}
 
+	int max = 0, x, y;
+	for(auto i = applicable.begin(); i != applicable.end(); i++) { //Iterate over the numbers in applicable
+		for(auto j = i; j != applicable.end(); j++) {
+			if(timeMatrix[*i][*j] > max) {
+				max = timeMatrix[*i][*j];
+				x = *i;
+				y = *j;
+			}
+		}
+	}
+
+	planets[x].troops = cap;
+	planets[y].troops = cap;
+
+	planets[x].player = messenger1->playerId();
+	planets[y].player = messenger2->playerId();
+}
+
+void Game::generateSector(int signPhi, int signTheta, int signMagnitude, int totalCapacity) {
+	while(totalCapacity > 0) {
+		int capacity =  ( (int)((totalCapacity / 100 - 1) * randUnit()) /*int between 0 and cap/100 - 1*/ + 1) * 100; //Some fraction of total capacity in hundreds
+		totalCapacity -= capacity; //Reduce remaning capacity in this slice
+
+		//Create, id, and push the new planet
+		Planet p = generatePlanet(signPhi, signTheta, signMagnitude, capacity);
 		p.id = planets.size();
-		planets.push_back(p); //Copy the planet into the vector
+		planets.push_back(p);
 	}
 }
 
-double Game::randUnit() { //Random number 0..1
-	return (double)(rand() % 10001) / 10000;
+Game::Planet Game::generatePlanet(int signPhi, int signTheta, int signMagnitude, int capacity) {
+	Planet p;
+	p.troops = 50; //All planets start with 50 troops
+	p.player = -1; //All planets are neutral on creation
+	p.capacity = capacity;  //Set the growth of the planet from 100 * (1..5)
+	p.growth = 100 / CENT_TIME; //Troops per second
+
+	//Assign and check positions until a valid one is found
+	while(true) {
+		double phi = randAngle() * signPhi;
+		double theta = randAngle() * signTheta;
+		double mag = systemRadius * signMagnitude * (1 - randUnit() * randUnit()); //Random radius within systemRadius for planet favouring more distant
+
+		p.z = sin(phi) * mag;
+		p.y = cos(phi) * sin(theta) * mag;
+		p.x = cos(phi) * cos(theta) * mag;
+
+		int i;
+		for(i = 0; i < planets.size() && distanceSquared(planets[i], p) >= minSeparation * minSeparation; i++) {} //Loop over planets until none left or one too close
+		if(i == planets.size()) { break; } //i counted over all planets (all passed)
+	}
+
+	return p;
 }
 
-double Game::randAngle(double sign) { return  PI / 2 * randUnit() * sign; } //Random angle 0..PI/2, signed
+double Game::randUnit() { return (double)(rand() % 100001) / 100000; }
+
+double Game::randAngle() { return  PI / 2 * randUnit(); } //Random angle 0..PI/2, signed
 
 double Game::distanceSquared(const Planet& a, const Planet& b) { return pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2); } //Distance between two planets
 
@@ -128,9 +159,16 @@ int* Game::run() { //Conduct troop growth every 100ms
 			p.troops = min(p.troops, p.capacity); //Ensure troops never exceeds capacity
 		}
 
+		calculateWinner(); //Test for and declare winner
+		if(isWinner()) {
+			messenger1->relayWinner(winner); //Release the messangers
+			messenger2->relayWinner(winner);
+
+			cancel(); //Clean up the thread
+		}
 	guard.signal();
 
-	usleep(1000 * 1000);
+	usleep(1000 * 1000); //Sleep for 1 second
 
 	return NULL;
 }
@@ -159,46 +197,45 @@ void Game::arriveDeployment(int troops, int dest, int player) {
 		if(isWinner()) { return; } //If someone has won do nothing
 
 		depCount--; //Discount this dep
-		Planet& p(planets[dest]);
+		Planet& p = planets[dest];
 
 		if(p.player == player) { p.troops += troops; } //If the player owns the planet
-		else if(p.troops >= troops) { p.troops -= troops;} //If the planet has more enemies
-		else { //If the planet has fewer enemies
-			p.troops = troops - p.troops;
-			p.player = player;
+		else {
+			if(p.troops > troops) { p.troops -= troops; } //If the planet has more enemies
+			else if(p.troops == troops) { //If the invasion is equal to the stationed
+				p.troops = 0;
+				p.player = -1;
+			}
+			else { //If the planet has fewer enemies
+				p.troops = troops - p.troops;
+				p.player = player;
+			}
 		}
 		p.troops = min(p.troops, p.capacity); //Don't exceed planet capacity
 
-		testWinner(); //Test for and declare winner
-		if(isWinner()) { 
-			messenger1->relayWinner(winner);
-			messenger2->relayWinner(winner);
-			cancel(); 
-		}
-		else { //Update the state of that planet on the client side
-			messenger1->relayUpdate(dest, p.player, p.troops);
-			messenger2->relayUpdate(dest, p.player, p.troops);
-		}
+		//Update the state of that planet on the client side
+		messenger1->relayUpdate(dest, p.player, p.troops);
+		messenger2->relayUpdate(dest, p.player, p.troops);
 	guard.signal();
 }
 
 void Game::surrender(GameMessenger* sur, bool wantsConfirm) {
 	guard.wait();
 		if(isWinner()) { return; } //If someone has won do nothing
-		Thread::cancel();
-		join();
 
 		GameMessenger* win = (messenger1 == sur) ? messenger2 : messenger1;
 		winner = win->playerId();
 
 		win->relayWinner(winner);
 		if(wantsConfirm) { sur->relayWinner(winner); }
-
+		
 		cancel();
 	guard.signal();
 }
 
-void Game::testWinner() { //Is there a winner
+void Game::calculateWinner() { //Is there a winner
+	if(depCount > 0) { return; } //No one can win with troops in flight
+
 	//Count the planets owned by each player
 	int p1(0), p2(0);
 	for(int i = 0; i < planets.size(); i++) {
@@ -208,10 +245,6 @@ void Game::testWinner() { //Is there a winner
 
 	//If a player owns none, return the id of the other
 	if(p1 == 0) { winner = messenger2->playerId(); }
-	else if(p2 == 0) { winner = messenger2->playerId(); }
+	else if(p2 == 0) { winner = messenger1->playerId(); }
 }	
 
-void Game::cancel() { //Specialized cleanup
-	ThreadDisposer::getInstance().add(this);
-	ThreadBase::cancel();
-}

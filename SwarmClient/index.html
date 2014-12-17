@@ -1,0 +1,48 @@
+<html>
+
+    <head>
+        <title> OS Final Project </title>
+
+        <link rel="stylesheet" type="text/css" href="global.css">
+
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script src="three.min.js"></script>
+        <script src="Detector.js"></script>
+        <script src="stats.min.js"></script>
+        <script src="OrbitControls.js"></script>
+        <script src="Projector.js"></script>
+        <script id="vertexShaderAtmosphere" type="x-shader/x-vertex">
+            varying vec3 vNormal;
+            void main() 
+            {
+                vNormal = normalize( normalMatrix * normal );
+                gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+            }
+        </script>
+        <script id="fragmentShaderAtmosphere" type="x-shader/x-vertex"> <!-- fragment shader a.k.a. pixel shader -->
+            uniform float c;
+            uniform float p;
+            varying vec3 vNormal;
+            void main() 
+            {
+	            float intensity = pow( c - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) ), p ); 
+	            gl_FragColor = vec4( 1.0, 1.0, 1.0, 1.0 ) * intensity;
+            }
+        </script>
+        <script type="text/javascript" src="Ship.js"></script>
+        <script type="text/javascript" src="Planet.js"></script>
+        <script type="text/javascript" src="Game.js"></script>
+
+        <script type="text/javascript" src="main.js"></script>
+
+
+    </head>
+
+    <body>
+        <div id="container"></div>
+
+		<ul id="lobby"></ul>
+
+    </body>
+
+</html>

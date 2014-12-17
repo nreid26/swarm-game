@@ -7,6 +7,7 @@
 #include "Semaphore.h"
 
 class LobbyMessenger;
+class Game;
 
 using namespace std;
 
@@ -16,11 +17,11 @@ class Lobby {
 
 	private: static const string LEAVING;
 	private: static const string JOINING;
-	private: static const string CHALLENGED;
 
 	private: vector<LobbyMessenger*> messengers; //List of messengers sorted by player id ascending
 	private: map<int, vector<int> > challenges; //Map of (issued by) => (issued to)
 	private: Semaphore guard;
+	private: vector<Game*> games;
 
 	private: Lobby();
 	public: virtual ~Lobby();

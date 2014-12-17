@@ -13,7 +13,7 @@ using namespace rapidjson;
 unsigned long GameMessenger::unixMillis() {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
-	return (unsigned long long)(tv.tv_sec) * 1000 + (unsigned long long)(tv.tv_usec) / 1000;
+	return (unsigned long)(tv.tv_sec) * 1000 + (unsigned long)(tv.tv_usec) / 1000;
 }
 
 GameMessenger::GameMessenger(Player* player, Game* game) : Messenger(player), game(game) {}
@@ -76,7 +76,7 @@ void GameMessenger::relayUpdate(int dest, int playerId, int troops){
 			"\"updatePlanet\":{" << 
 				"\"id\":" << dest << ", " << 
 				"\"player\":" << playerId << ", " <<
-				"\"time\":" << unixMillis() << ", " <<
+				//"\"time\":" << unixMillis() << ", " <<
 				"\"troops\":" << troops <<
 			"}" <<
 		"}";
@@ -93,7 +93,7 @@ void GameMessenger::relayDeployment(int source, int destination, int playerId,in
 				"\"destination\":" << destination << ", " <<
 				"\"player\":" << playerId << ", " <<
 				"\"troops\":" << troops << ", " <<
-				"\"arrival\":" << unixMillis() + arrivalTime <<
+				"\"duration\":" << /*unixMillis() +*/ arrivalTime <<
 			"}" <<
 		"}";
 
