@@ -1,5 +1,5 @@
 function Planet(properties, scale, game) {
-    this.usedRad = properties.capacity/4;
+    this.usedRad = properties.capacity / 4;
 
     //Create an instance of Mesh on each Planet
     THREE.Mesh.call(this, new THREE.SphereGeometry(this.usedRad, 64, 64 ), new THREE.MeshLambertMaterial({emissive: 0x222222, map:this.texture}));
@@ -16,6 +16,8 @@ function Planet(properties, scale, game) {
 
     this.game = game;
     this.lastPlayer = -2;
+
+    this.rotAngle = ((Math.random() > 0.5) ? -1 : 1) * Math.PI * 2 / game.FPS / (5 + 5 * Math.random()); //Rotation around Y at +/-(5..10)Hz
 
 	//Create troop tag
 	this.troopTag = this.baseTag.clone();
@@ -38,19 +40,29 @@ Planet.prototype.update = function(delta) {
 
     //Set color
     if(this.lastPlayer != this.player) {
-        this.material.color.setHex(this.getColor());
         this.lastPlayer = this.player;
+        this.material.color.setHex(this.getColor());
     }
+
+    this.rotateOnAxis(this.yUnit, this.rotAngle);
 };
 
 Planet.prototype.baseTag = $('<div class="troop_tag"></div>');
 
 Planet.prototype.getColor = function() {
     if(this.player == game.playerId){ return 0x3333FF; }
-	else if (this.player == -1) { return 0xA39E80; }
+	else if (this.player == -1) { return 0x7F7A5C; }
 	else { return 0xFF3333; }
 };
 
 Planet.prototype.destroy = function() { this.troopTag.remove(); };
 
-Planet.prototype.texture = THREE.ImageUtils.loadTexture('./images/texture.png');
+Planet.prototype.resetResources = function() {
+    Planet.prototype.texture = THREE.ImageUtils.loadTexture('./images/lava.jpg');
+}
+
+Planet.prototype.yUnit = new THREE.Vector3(0, 1, 0);
+
+//++++++++++++++++++++++++++++++
+
+Planet.prototype.resetResources();

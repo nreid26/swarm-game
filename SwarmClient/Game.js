@@ -12,8 +12,10 @@ function Game(playerId) {
 
     this.requestId = null;
     this.glow = null;
+    this.glowMaterial = new THREE.MeshLambertMaterial({color:0x699999, opacity:0.15, transparent:true});
 
     this.planetSelected = -1;
+    this.FPS = 60;
     
 	this.scene.add(this.camera);
 	this.camera.position.set(0,100,400);
@@ -45,13 +47,6 @@ Game.prototype.NEAR = 0.1;
 Game.prototype.FAR = 20000;
 
 $(document).ready(function() { Game.prototype.container = $('#container'); });
-
-Game.prototype.glowMaterial = (function() {
-    var x = new THREE.MeshLambertMaterial({color: 0x699999});
-    x.opacity = 0.15;
-    x.transparent = true;
-    return x;
-})();
 
 Game.prototype.start = function() {
     var me = this; //_start will execute in the context of window on subsequent calls
@@ -171,8 +166,9 @@ Game.prototype.sendDeployment = function(deployment) {
     var src = this.planets[deployment.source].position;
     var dest = this.planets[deployment.destination].position;
     var troops = deployment.troops;
-    var count = Math.ceil(troops / MAX_TOOPS);
+    var count = Math.ceil(troops / MAX_TROOPS);
     var rotAngle = Math.PI * 2 / count;
+    var side = (deployment.player == this.playerId) ? 'friend' : 'enemy';
 
 	this.planets[deployment.source].troops -= troops; //Reduce stationed troops
 
@@ -182,19 +178,14 @@ Game.prototype.sendDeployment = function(deployment) {
     var e2 = (new THREE.Vector3()).crossVectors(dir, e1); //Orthonormal to dir and e1
 
     function getControl(index) {
-        var RADIUS = 80;
+        var RADIUS = 100;
         return (new THREE.Vector3()).copy(e1).multiplyScalar(Math.sin(index * rotAngle))
             .add((new THREE.Vector3()).copy(e2).multiplyScalar(Math.cos(index * rotAngle)))
             .multiplyScalar(RADIUS).add(mid);
     }
 
-    var rawRotMatrix = (new THREE.Matrix4()).makeRotationAxis(dir, rotAngle);
-    var rotMatrix = (new THREE.Matrix4()).identity();
-
     for(var i = 0; i < count; i++) {
-        var ship = new Ship(src, getControl(i), dest, deployment.duration, deployment.player);
-        ship.matrix.multiply(rotMatrix);
-        rotMatrix.multiply(rawRotMatrix); //Incremetially increase the rotation matrix
+        var ship = new Ship(src, getControl(i), dest, deployment.duration, deployment.player, side);
 		
         this.ships.push(ship);
         this.scene.add(ship);
@@ -207,5 +198,3 @@ Game.prototype.updatePlanet = function(update) {
     planet.troops = update.troops;
     planet.player = update.player;
 };
-
-Game.prototype.getControlVectors = 

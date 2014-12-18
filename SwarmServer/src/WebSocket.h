@@ -5,6 +5,7 @@
 #include "SHA1.h"
 
 #include <iostream>
+#include "Exception.h"
 
 using namespace std;
 
@@ -18,10 +19,14 @@ class WebSocket : public Socket {
 
 	//Methods
 	public: virtual string read() {
-		//Many magic numbers from MDN spec
+		//Check for closing
+		int x = Socket::read(1)[0] & 0xFF;
+		if(x == 0x88) {
+			throw Exception("WebSocket Has Been Disconnected From Client Side");
+		}
 
 		//Extact payload size
-		int payloadSize = Socket::read(2)[1] & 0x7F; //Set upper MSB to 0
+		int payloadSize = Socket::read(1)[0] & 0x7F; //Set upper MSB to 0
 		if(payloadSize == 126) { payloadSize = extract(Socket::read(2)); }
 		else if(payloadSize == 127) { payloadSize = extract(Socket::read(4)); }
 

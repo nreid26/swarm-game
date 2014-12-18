@@ -1,6 +1,7 @@
 var socket = null;
 var playerId = null;
 var $lobby;
+var $lobbyList
 var game = null;
 var handlerMap = {};
 
@@ -9,6 +10,7 @@ var nameMap = {};
 
 $(document).ready(function() {
     $lobby = $('#lobby');
+    $lobbyList = $('#lobby_list');
 
     socket = new WebSocket("ws://104.131.16.145:6113/");
 
@@ -30,6 +32,16 @@ $(document).ready(function() {
             }
         }
     };
+
+    socket.onerror = function(event) {
+        $lobby.hide();
+        if(game != null) {
+            game.stop();
+            game = null;
+        }
+        $(document).append('<h1> Unable to Connect to Server.  Please Try Again Later </h1>');
+    }
+
 });
 
 handlerMap.playerId = function(obj) { playerId = obj.playerId; };
@@ -52,7 +64,7 @@ handlerMap.player = function(obj) {
         });
 
 		$lobbyElement.append($button);
-		$lobby.append($lobbyElement);
+		$lobbyList.append($lobbyElement);
 
         lobbyMap[obj.player.id] = $lobbyElement;
         nameMap[obj.player.id] = obj.player.name;
@@ -95,9 +107,13 @@ handlerMap.winner = function(obj){
 
     nameMap = {};
     lobbyMap = {};
-    $lobby.html('');
+    $lobbyList.html('');
 
     game.stop();
     game = null;
+
+    Ship.prototype.resetResources();
+    Planet.prototype.resetResources();
+
 	$lobby.show();
 };

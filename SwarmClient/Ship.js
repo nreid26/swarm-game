@@ -1,9 +1,5 @@
-function Ship(source, control, destination, duration, player) {
-    //Create the instance members of a Mesh on each ship
-    //if(shipClass < 10) { THREE.Mesh.call(this, this.smallGeometry, this.smallTexture); }
-	//else { THREE.Mesh.call(this, this.bigGeometry, this.bigTexture); }
-
-    THREE.Mesh.call(this, this.smallGeometry, this.smallTexture); //Small ship
+function Ship(source, control, destination, duration, player, side) {
+    THREE.Mesh.call(this, this.geometry, this.textures[side]); //Small ship
 
     //Set ship properties
 	this.lifetime = duration;
@@ -15,7 +11,6 @@ function Ship(source, control, destination, duration, player) {
     //Set the relevant Mesh properties
     for(var cord in this.src) { this.position[cord] = this.src[cord]; }
 	this.scale.set(5, 5, 5);
-	this.material.materials[0].shader = THREE.FlatShader;
 	this.lookAt(this.dest);
 }
 
@@ -37,14 +32,22 @@ Ship.prototype.update = function(delta) {
 	return true;
 };
 
-(function() {
-    var loader = new THREE.JSONLoader();
-    loader.load( "./shipSmall.json", function(geometry, materials) {
-    	Ship.prototype.smallGeometry = geometry;
-    	Ship.prototype.smallTexture = new THREE.MeshFaceMaterial(materials);
+Ship.prototype.loader =  new THREE.JSONLoader();
+
+Ship.prototype.resetResources = function() {
+    this.loader.load( "./shipSmall.json", function(geometry, materials) {
+     	Ship.prototype.geometry = geometry;
+        Ship.prototype.textures = {};
+
+        Ship.prototype.textures.enemy = new THREE.MeshFaceMaterial(materials);
+        Ship.prototype.textures.enemy.materials[0].color = new THREE.Color(0x3333FF);
+        Ship.prototype.textures.enemy.materials[0].shader = THREE.FlatShader;
+
+        Ship.prototype.textures.friend = Ship.prototype.textures.enemy.clone();
+        Ship.prototype.textures.enemy.materials[0].color = new THREE.Color(0xFF3333);
 	});
-	loader.load( "./shipBig.json", function(geometry, materials) {
-    	Ship.prototype.bigGeometry = geometry;
-    	Ship.prototype.bigTexture = new THREE.MeshFaceMaterial(materials);
-	});
-})();
+}
+
+//+++++++++++++++++++++++++
+
+Ship.prototype.resetResources();
