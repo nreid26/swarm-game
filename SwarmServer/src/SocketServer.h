@@ -20,7 +20,7 @@ class SocketServer {
 	private: bool closed;
 
 	//Constructor
-	public: SocketServer(int port) {
+	public: SocketServer(int port) : closed(true) {
 		// The first call has to be to socket(). This creates a UNIX socket.
 		socketFile = socket(AF_INET, SOCK_STREAM, 0);
 		if(socketFile < 0)
@@ -39,6 +39,7 @@ class SocketServer {
 
 		// Set up a maximum number of pending connections to accept
 		listen(socketFile, 5);
+		closed = false;
 	}
 
 	public: virtual ~SocketServer() {

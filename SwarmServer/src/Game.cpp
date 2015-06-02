@@ -121,7 +121,7 @@ void Game::generateSector(int signPhi, int signTheta, int signMagnitude, int tot
 
 Game::Planet Game::generatePlanet(int signPhi, int signTheta, int signMagnitude, int capacity) {
 	Planet p;
-	p.troops = 50; //All planets start with 50 troops
+	p.troops = 15; //All planets start with 50 troops
 	p.player = -1; //All planets are neutral on creation
 	p.capacity = capacity;  //Set the growth of the planet from 100 * (1..5)
 	p.growth = 100 / CENT_TIME; //Troops per second
